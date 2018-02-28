@@ -17,9 +17,9 @@
 package com.mutant.wordsmaster.util
 
 import android.support.annotation.VisibleForTesting
+import com.google.common.collect.Lists
 import com.mutant.wordsmaster.data.Word
 import com.mutant.wordsmaster.data.source.WordsDataSource
-import com.google.common.collect.Lists
 import java.util.*
 
 /**
@@ -50,6 +50,10 @@ class FakeTasksRemoteDataSource : WordsDataSource {
 
     override fun deleteAllWords() {
         WORDS_SERVICE_DATA.clear()
+    }
+
+    override fun swapPosition(wordId1: String, wordId2: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     @VisibleForTesting

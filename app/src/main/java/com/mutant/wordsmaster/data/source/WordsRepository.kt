@@ -6,7 +6,6 @@ import com.mutant.wordsmaster.data.Word
 @Entity(tableName = "words")
 class WordsRepository private constructor(private val mWordsRemoteDataSource: WordsDataSource,
                               private val mWordsLocalDataSource: WordsDataSource): WordsDataSource {
-
     /**
      * This variable has package local visibility so it can be accessed from tests.
      */
@@ -72,23 +71,35 @@ class WordsRepository private constructor(private val mWordsRemoteDataSource: Wo
     }
 
     override fun getWord(wordId: String, callback: WordsDataSource.GetWordCallback) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun saveWord(word: Word) {
         mWordsLocalDataSource.saveWord(word)
+//        mWordsRemoteDataSource.saveWord(word)
+        mCachedWords[word.id] = word
     }
 
     override fun deleteWord(wordId: String) {
         mWordsLocalDataSource.deleteWord(wordId)
+//        mWordsRemoteDataSource.deleteWord(wordId)
+        mCachedWords.remove(wordId)
     }
 
     override fun deleteAllWords() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mWordsLocalDataSource.deleteAllWords()
+//        mWordsRemoteDataSource.deleteAllWords()
+        mCachedWords.clear()
     }
 
     override fun refreshWords() {
         mCacheIsDirty = true
+    }
+
+    override fun swapPosition(wordId1: String, wordId2: String) {
+        mWordsLocalDataSource.swapPosition(wordId1, wordId2)
+//        mWordsRemoteDataSource.swapPosition(wordId1, wordId2)
+//        mCachedWords.
     }
 
     companion object {

@@ -21,5 +21,6 @@ interface WordsDataSource {
     fun saveWord(word: Word)
     fun deleteWord(wordId: String)
     fun deleteAllWords()
+    fun swapPosition(wordId1: String, wordId2: String)
     fun refreshWords()
 }

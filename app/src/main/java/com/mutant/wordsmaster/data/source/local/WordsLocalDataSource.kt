@@ -85,6 +85,10 @@ private constructor(private val mAppExecutors: AppExecutors,
         mAppExecutors.diskIO().execute(deleteRunnable)
     }
 
+    override fun swapPosition(wordId1: String, wordId2: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     companion object {
 
         @Volatile
