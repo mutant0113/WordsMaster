@@ -87,6 +87,7 @@ class WordsFragment : Fragment(), WordsContract.View {
      * Listener for clicks on words in the ListView.
      */
     private val mItemListener = object : WordsItemListener {
+
         override fun onWordClick(clickedWord: Word) {
             TODO("intent to detail activity")
         }

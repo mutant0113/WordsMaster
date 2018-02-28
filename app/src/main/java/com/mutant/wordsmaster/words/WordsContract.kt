@@ -20,6 +20,7 @@ interface WordsContract {
         fun result(requestCode: Int, resultCode: Int)
         fun loadWords(forceUpdate: Boolean)
         fun addNewWord()
+        fun deleteWord(wordId: String)
     }
 
     // TODO

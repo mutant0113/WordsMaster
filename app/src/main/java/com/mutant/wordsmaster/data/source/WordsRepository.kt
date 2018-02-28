@@ -80,7 +80,7 @@ class WordsRepository private constructor(private val mWordsRemoteDataSource: Wo
     }
 
     override fun deleteWord(wordId: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        mWordsLocalDataSource.deleteWord(wordId)
     }
 
     override fun deleteAllWords() {

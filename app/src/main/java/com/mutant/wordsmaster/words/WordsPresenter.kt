@@ -60,4 +60,9 @@ class WordsPresenter(private val mWordsRepository: WordsRepository,
         mWordsView.showAddWord()
     }
 
+    override fun deleteWord(wordId: String) {
+        mWordsRepository.deleteWord(wordId)
+        loadWords(true)
+    }
+
 }
