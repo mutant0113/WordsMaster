@@ -199,6 +199,10 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.view_words, parent, false)
+            val params = itemView.layoutParams
+//            params.width = ViewGroup.LayoutParams.MATCH_PARENT
+//            params.height = 400
+            itemView.layoutParams = params
             val holder = ViewHolder(itemView, itemView.text_view_title, itemView.text_view_explanation, itemView.text_view_eg)
             itemView.setOnClickListener({
                 mWordsItemListener.onItemClick(mWords[holder.adapterPosition])

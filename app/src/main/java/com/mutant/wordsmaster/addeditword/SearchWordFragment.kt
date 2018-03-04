@@ -8,8 +8,10 @@ import android.view.ViewGroup
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
+import com.mutant.wordsmaster.util.Utils
 import kotlinx.android.synthetic.main.fragment_search_word.*
 import kotlinx.android.synthetic.main.fragment_search_word.view.*
+
 
 class SearchWordFragment : Fragment(), SearchWordContract.View {
 
@@ -43,6 +45,7 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
     override fun showWord() {
         setLoadingIndicator(false)
         setSearchButtonEnabled(true)
+        Utils.hideKeyBoard(activity, edit_text_word)
         (activity as AddEditWordActivity).showWord()
     }
 

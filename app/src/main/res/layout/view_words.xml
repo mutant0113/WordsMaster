@@ -1,36 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:layout_margin="5dp"
+    android:layout_height="250dp"
+    android:layout_margin="8dp"
     app:cardCornerRadius="4dp">
 
-    <android.support.constraint.ConstraintLayout
+    <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical">
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_view_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
-            android:hint="Title"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:ellipsize="end"
+            android:hint="Title" />
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_view_explanation"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="Explanation"
-            app:layout_constraintStart_toStartOf="@+id/text_view_title"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_title" />
+            android:ellipsize="end"
+            android:hint="Explanation" />
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/text_view_eg"
@@ -38,11 +35,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:hint="e.g."
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/text_view_title"
-            app:layout_constraintTop_toBottomOf="@+id/text_view_explanation" />
+            android:ellipsize="end"
+            android:hint="e.g." />
 
-    </android.support.constraint.ConstraintLayout>
+    </android.support.v7.widget.LinearLayoutCompat>
 
 </android.support.v7.widget.CardView>
