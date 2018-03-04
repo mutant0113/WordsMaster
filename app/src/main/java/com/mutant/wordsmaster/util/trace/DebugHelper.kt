@@ -25,9 +25,23 @@ class DebugHelper {
             mDebugLogPath = path
         }
 
+        fun v(tag: String, msg: Any) {
+            if (mIsDebugEnabled) {
+                Log.v(tag, "" + msg)
+                writeLog(tag, "" + msg)
+            }
+        }
+
         fun i(tag: String, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.i(tag, "" + msg)
+                writeLog(tag, "" + msg)
+            }
+        }
+
+        fun d(tag: String, msg: Any) {
+            if (mIsDebugEnabled) {
+                Log.d(tag, "" + msg)
                 writeLog(tag, "" + msg)
             }
         }
