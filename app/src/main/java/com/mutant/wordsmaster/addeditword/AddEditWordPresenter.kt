@@ -4,9 +4,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
+import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
 import com.mutant.wordsmaster.data.Word
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
@@ -18,14 +19,17 @@ import com.mutant.wordsmaster.util.trace.DebugHelper
 class AddEditWordPresenter(private val mWordId: String?,
                            private val mWordsRepository: WordsRepository,
                            private val mAddEditWordView: AddEditWordContract.View,
+                           private val mSearchWordView: SearchWordContract.View,
                            private val mShouldLoadDataFromRepo: Boolean) :
         AddEditWordContract.Present, WordsLocalContract.GetWordCallback {
 
     private var mIsDataMissing: Boolean = false
+    private var misWebViewLoaded = false
 
     init {
         mIsDataMissing = mShouldLoadDataFromRepo
         mAddEditWordView.setPresent(this)
+        mSearchWordView.setPresent(this)
     }
 
     override fun start() {
@@ -83,29 +87,25 @@ class AddEditWordPresenter(private val mWordId: String?,
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun parseHtmlFromWebView(context: Context, sourceText: String) {
+        mSearchWordView.showSearching()
+        misWebViewLoaded = false
+
         val webView = WebView(context)
-
         webView.settings.javaScriptEnabled = true
-        webView.clearHistory()
-        webView.clearCache(true)
-        webView.settings.builtInZoomControls = true
-        webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        webView.settings.setSupportZoom(true)
-        webView.settings.useWideViewPort = false
-        webView.settings.loadWithOverviewMode = false
         webView.addJavascriptInterface(LoadListener(), "HTMLOUT")
-        var isLoaded = false
-        webView.webViewClient = object : WebViewClient() {
-
-            override fun onPageFinished(view: WebView, url: String) {
-                if(!isLoaded)
-//                    Handler().postDelayed({ webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);"); }, 5000)
-                    webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
-            }
-        }
-
+        webView.webViewClient = mWebViewClient
         // TODO srcLang and tgtLang must be parameters.
         webView.loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
+    }ㄔㄛ
+
+    private val mWebViewClient = object : WebViewClient() {
+
+        override fun onPageFinished(view: WebView, url: String) {
+            if(!misWebViewLoaded) {
+                view.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
+                misWebViewLoaded = true
+            }
+        }
     }
 
     /**
@@ -124,6 +124,8 @@ class AddEditWordPresenter(private val mWordId: String?,
 
                 override fun onDataNotAvailable() {
                     DebugHelper.e(TAG, "processHTML: html parse to word failed.")
+                    if(mSearchWordView.isActive())
+                        mSearchWordView.showNoSuchWordError()
                 }
 
             })
@@ -131,9 +133,11 @@ class AddEditWordPresenter(private val mWordId: String?,
     }
 
     private fun setWordToView(word: Word) {
-        if(word.title.isNotEmpty()) mAddEditWordView.setTitle(word.title)
-        if(word.explanation != null) mAddEditWordView.setExplanation(word.explanation)
-        if(word.eg != null) mAddEditWordView.setEg(word.eg)
+        if(!mSearchWordView.isActive()) return
+        if(!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
+        if(!word.explanation.isNullOrBlank()) mAddEditWordView.setExplanation(word.explanation)
+        if(!word.eg.isNullOrBlank()) mAddEditWordView.setEg(word.eg)
+        mSearchWordView.showWord()
     }
 
     override fun translate(activity: Activity, sourceText: String) {

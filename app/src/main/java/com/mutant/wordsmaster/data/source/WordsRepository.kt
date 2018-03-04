@@ -33,6 +33,7 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
             override fun onDataNotAvailable() {
                 // TODO use firebase in the future
 //              getWordsFromRemoteDataSource(callback)
+                callback.onDataNotAvailable()
             }
 
         })

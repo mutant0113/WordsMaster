@@ -173,7 +173,7 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     override fun showLoadingWordsError() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        showMessage(getString(R.string.loading_words_error))
     }
 
     override fun showNoWords() {

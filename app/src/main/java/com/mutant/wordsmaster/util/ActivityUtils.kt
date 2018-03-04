@@ -29,10 +29,48 @@ object ActivityUtils {
      * performed by the `fragmentManager`.
      *
      */
-    fun addFragmentToActivity(fragmentManager: FragmentManager, fragment: Fragment, frameId: Int) {
+    fun addFragment(fragmentManager: FragmentManager, fragment: Fragment, frameId: Int, tag: String) {
         val transaction = fragmentManager.beginTransaction()
-        transaction.add(frameId, fragment)
+        transaction.add(frameId, fragment, tag)
         transaction.commit()
+        fragmentManager.executePendingTransactions()
+    }
+
+    fun replaceFragment(fragmentManager: FragmentManager, fragment: Fragment, frameId: Int, tag: String) {
+        val transaction = fragmentManager.beginTransaction()
+        transaction.replace(frameId, fragment, tag)
+        transaction.commit()
+    }
+
+    fun hideFragment(fragmentManager: FragmentManager, tag: String) {
+        val fragment = fragmentManager.findFragmentByTag(tag)
+        if (fragment != null) {
+            val transaction = fragmentManager.beginTransaction()
+            transaction.hide(fragment)
+            transaction.commit()
+        }
+    }
+
+    fun showFragment(fragmentManager: FragmentManager, tag: String) {
+        val fragment = fragmentManager.findFragmentByTag(tag)
+        if (fragment != null) {
+            val transaction = fragmentManager.beginTransaction()
+            transaction.show(fragment)
+            transaction.commit()
+        }
+    }
+
+    /**
+     * Bring fragment with tag to the top and hide all other fragments
+     */
+    fun switchFragment(fragmentManager: FragmentManager, tag: String) {
+        val fragmentShow = fragmentManager.findFragmentByTag(tag)
+        if(fragmentShow != null) {
+            for(fragment in fragmentManager.fragments) {
+                hideFragment(fragmentManager, fragment.tag)
+            }
+            showFragment(fragmentManager, tag)
+        }
     }
 
 }

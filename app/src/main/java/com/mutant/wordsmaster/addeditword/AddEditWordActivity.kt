@@ -11,6 +11,8 @@ class AddEditWordActivity : AppCompatActivity() {
     companion object {
         const val REQUEST_ADD_TASK = 1
         const val SHOULD_LOAD_DATA_FROM_REPO_KEY = "SHOULD_LOAD_DATA_FROM_REPO_KEY"
+        const val TAG_FRAGMENT_ADDEDITWORD = "ADDEDITWORD"
+        const val TAG_FRAGMENT_SEARCH_WORD = "SEARCHWORD"
     }
 
     private lateinit var mAddEditWordPresenter: AddEditWordPresenter
@@ -19,22 +21,37 @@ class AddEditWordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addword)
 
-        var addEditWordFragment = supportFragmentManager.findFragmentById(R.id.content_edit) as AddEditWordFragment?
+        var searchFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as SearchWordFragment?
         val wordId = intent.getStringExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)
 
-        if (addEditWordFragment == null) {
+        if (searchFragment == null) {
             // Create the fragment
-            addEditWordFragment = AddEditWordFragment.newInstance()
+            searchFragment = SearchWordFragment.newInstance()
 
+            // TODO Getting data means this page is in edit mode
             if (intent.hasExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)) {
-                val bundle = Bundle()
-                bundle.putString(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID, wordId)
-                addEditWordFragment.arguments = bundle
+//                val bundle = Bundle()
+//                bundle.putString(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID, wordId)
+//                searchWordFragment.arguments = bundle
             }
 
-            ActivityUtils.addFragmentToActivity(supportFragmentManager,
-                    addEditWordFragment, R.id.content_edit)
+            ActivityUtils.addFragment(supportFragmentManager, searchFragment,
+                    R.id.content_frame, TAG_FRAGMENT_SEARCH_WORD)
         }
+
+        // Create the fragment
+        val addEditWordFragment = AddEditWordFragment.newInstance()
+
+        // TODO Getting data means this page is in edit mode
+        if (intent.hasExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)) {
+            val bundle = Bundle()
+            bundle.putString(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID, wordId)
+            addEditWordFragment.arguments = bundle
+        }
+
+        ActivityUtils.addFragment(supportFragmentManager, addEditWordFragment,
+                R.id.content_frame, TAG_FRAGMENT_ADDEDITWORD)
+        ActivityUtils.hideFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
 
         var shouldLoadDataFromRepo = true
 
@@ -46,10 +63,12 @@ class AddEditWordActivity : AppCompatActivity() {
 
         // Create the presenter
         mAddEditWordPresenter = AddEditWordPresenter(wordId,
-                Injection.provideTasksRepository(applicationContext), addEditWordFragment, shouldLoadDataFromRepo)
+                Injection.provideTasksRepository(applicationContext), addEditWordFragment,
+                searchFragment, shouldLoadDataFromRepo)
+    }
 
-        // TODO run this on other fragment
-        mAddEditWordPresenter.parseHtmlFromWebView(this, "hello")
+    fun showWord() {
+        ActivityUtils.switchFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
     }
 
 }

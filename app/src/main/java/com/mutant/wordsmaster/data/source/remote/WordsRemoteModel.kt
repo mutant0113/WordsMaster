@@ -12,7 +12,7 @@ private constructor(private val mAppExecutors: AppExecutors) : WordsRemoteContra
         val runnable = Runnable {
             val word = JsoupHelper.parseHtml(html)
             mAppExecutors.mainThread().execute({
-                if (word == null) {
+                if (word == null || word.explanation.isNullOrBlank()) {
                     callback.onDataNotAvailable()
                 } else {
                     callback.onWordLoaded(word)

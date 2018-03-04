@@ -12,6 +12,10 @@ class WordsActivity : AppCompatActivity() {
 
     private lateinit var mWordsPresent: WordsPresenter
 
+    companion object {
+        const val TAG_FRAGMENT_WORDS = "WORDS"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_words)
@@ -21,7 +25,8 @@ class WordsActivity : AppCompatActivity() {
         if (wordsFragment == null) {
             // Create the fragment
             wordsFragment = WordsFragment.newInstance()
-            ActivityUtils.addFragmentToActivity(supportFragmentManager, wordsFragment, R.id.content_main)
+            ActivityUtils.addFragment(supportFragmentManager, wordsFragment,
+                    R.id.content_main, TAG_FRAGMENT_WORDS)
         }
 
         // Create the presenter

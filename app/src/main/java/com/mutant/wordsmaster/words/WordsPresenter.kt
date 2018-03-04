@@ -45,6 +45,7 @@ class WordsPresenter(private val mWordsRepository: WordsRepository?,
 
             override fun onDataNotAvailable() {
                 if(!mWordsView.isActive()) return
+                if(showLoadingUI) mWordsView.setLoadingIndicator(false)
                 mWordsView.showLoadingWordsError()
             }
 
