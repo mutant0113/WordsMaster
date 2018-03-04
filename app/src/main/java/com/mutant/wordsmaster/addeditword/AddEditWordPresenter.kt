@@ -96,7 +96,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         webView.webViewClient = mWebViewClient
         // TODO srcLang and tgtLang must be parameters.
         webView.loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
-    }ㄔㄛ
+    }
 
     private val mWebViewClient = object : WebViewClient() {
 
