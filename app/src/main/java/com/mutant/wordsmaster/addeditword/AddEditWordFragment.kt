@@ -8,25 +8,12 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.JavascriptInterface
-import android.webkit.WebSettings
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import com.mutant.wordsmaster.R
-import com.mutant.wordsmaster.services.JsoupHelper
 import kotlinx.android.synthetic.main.fragment_addword.*
 import kotlinx.android.synthetic.main.fragment_addword.view.*
-
-
-
-
-
-
-
 
 
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
@@ -38,38 +25,12 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
         val fab = activity.findViewById(R.id.fab_edit_word_done) as FloatingActionButton
 
-        fab.setOnClickListener { mPresenter?.saveWord(edit_text_title.text.toString(),
-                edit_text_explanation.text.toString(), edit_text_eg.text.toString()) }
-
+        fab.setOnClickListener {
+            mPresenter?.saveWord(edit_text_title.text.toString(),
+                    edit_text_explanation.text.toString(), edit_text_eg.text.toString())
+        }
         root.edit_text_title.addTextChangedListener(mTitleTextWatcher)
-        root.webView.settings.javaScriptEnabled = true
-        root.webView.clearHistory();
-        root.webView.clearCache(true)
-        root.webView.settings.builtInZoomControls = true
-        root.webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
-        root.webView.settings.setSupportZoom(true)
-        root.webView.settings.useWideViewPort = false
-        root.webView.settings.loadWithOverviewMode = false
-        root.webView.settings.userAgentString =  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36"
-        root.webView.addJavascriptInterface(LoadListener(), "HTMLOUT")
-        root.webView.webViewClient = object : WebViewClient() {
-
-            override fun onPageFinished(view: WebView, url: String) {
-//                Handler().postDelayed({ root.webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);"); }, 5000)
-                root.webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
-            }
-        }
-        root.webView.loadUrl("https://translate.google.com/#en/zh-TW/hello")
         return root
-    }
-
-    internal inner class LoadListener {
-
-        @JavascriptInterface
-        fun processHTML(html: String) {
-            Log.i("result", html)
-            JsoupHelper.parseHtml(html)
-        }
     }
 
     private val mTitleTextWatcher = object : TextWatcher {

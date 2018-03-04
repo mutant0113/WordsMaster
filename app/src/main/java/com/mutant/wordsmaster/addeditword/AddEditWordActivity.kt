@@ -45,9 +45,11 @@ class AddEditWordActivity : AppCompatActivity() {
         }
 
         // Create the presenter
-        mAddEditWordPresenter = AddEditWordPresenter(this, wordId,
+        mAddEditWordPresenter = AddEditWordPresenter(wordId,
                 Injection.provideTasksRepository(applicationContext), addEditWordFragment, shouldLoadDataFromRepo)
 
+        // TODO run this on other fragment
+        mAddEditWordPresenter.parseHtmlFromWebView(this, "hello")
     }
 
 }

@@ -1,12 +1,12 @@
 package com.mutant.wordsmaster.data.source
 
 import android.arch.persistence.room.Entity
-import android.content.Context
 import com.mutant.wordsmaster.data.Word
 
 @Entity(tableName = "words")
 class WordsRepository private constructor(private val mWordsRemoteModel: WordsRemoteContract,
-                                          private val mWordsLocalModel: WordsLocalContract) {
+                                          private val mWordsLocalModel: WordsLocalContract) : WordsRemoteContract, WordsLocalContract {
+
     /**
      * This variable has package local visibility so it can be accessed from tests.
      */
@@ -18,7 +18,7 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
      */
     private var mCacheIsDirty = false
 
-    fun getWords(callback: WordsLocalContract.LoadWordsCallback) {
+    override fun getWords(callback: WordsLocalContract.LoadWordsCallback) {
         if (mCachedWords.isNotEmpty() && !mCacheIsDirty) {
             callback.onWordsLoaded(ArrayList<Word>(mCachedWords.values))
         }
@@ -38,8 +38,8 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         })
     }
 
-    private fun getWordFromRemoteDataSource(wordTitle: String, callback: WordsRemoteContract.GetWordCallback) {
-
+    override fun getWord(wordId: String, callback: WordsLocalContract.GetWordCallback) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun refreshCache(words: List<Word>) {
@@ -49,21 +49,8 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         }
     }
 
-    fun refreshWords() {
+    override fun refreshWords() {
         mCacheIsDirty = true
-    }
-
-    fun getWordFromGoogle(context: Context, sourceText: String, callback: WordsRemoteContract.GetWordCallback) {
-        mWordsRemoteModel.getWord(context, sourceText, object : WordsRemoteContract.GetWordCallback {
-
-            override fun onWordLoaded(word: Word?) {
-                callback.onWordLoaded(word)
-            }
-
-            override fun onDataNotAvailable() {
-                callback.onDataNotAvailable()
-            }
-        })
     }
 
     fun getWordFromLocal(wordId: String, callback: WordsLocalContract.GetWordCallback) {
@@ -80,33 +67,38 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         })
     }
 
-    fun saveWord(word: Word) {
+    override fun saveWord(word: Word) {
         mWordsLocalModel.saveWord(word)
 //        mWordsRemoteModel.saveWord(word)
         mCachedWords[word.id] = word
     }
 
-    fun deleteWord(wordId: String) {
+    override fun deleteWord(wordId: String) {
         mWordsLocalModel.deleteWord(wordId)
 //        mWordsRemoteModel.deleteWord(wordId)
         mCachedWords.remove(wordId)
     }
 
-    fun deleteAllWords() {
+    override fun deleteAllWords() {
         mWordsLocalModel.deleteAllWords()
 //        mWordsRemoteModel.deleteAllWords()
         mCachedWords.clear()
     }
 
-    fun swapPosition(wordId1: String, wordId2: String) {
+    override fun swapPosition(wordId1: String, wordId2: String) {
         mWordsLocalModel.swapPosition(wordId1, wordId2)
 //        mWordsRemoteModel.swapPosition(wordId1, wordId2)
 //        mCachedWords.
     }
 
+    override fun parseHtml(html: String, callback: WordsRemoteContract.GetWordCallback){
+        return mWordsRemoteModel.parseHtml(html, callback)
+    }
+
     companion object {
 
-        private var INSTANCE: WordsRepository? = null
+        @Volatile private var INSTANCE: WordsRepository? = null
+
         /**
          * Returns the single instance of this class, creating it if necessary.
          *
@@ -115,12 +107,13 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
          * @return the [WordsRepository] instance
          */
         fun getInstance(wordsRemoteModel: WordsRemoteContract,
-                        wordsLocalModel: WordsLocalContract): WordsRepository? {
+                        wordsLocalModel: WordsLocalContract): WordsRepository {
             if (INSTANCE == null) {
                 INSTANCE = WordsRepository(wordsRemoteModel, wordsLocalModel)
             }
-            return INSTANCE
+            return INSTANCE!!
         }
+
     }
 
 }

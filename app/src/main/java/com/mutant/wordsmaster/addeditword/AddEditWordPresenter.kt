@@ -1,16 +1,22 @@
 package com.mutant.wordsmaster.addeditword
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.webkit.JavascriptInterface
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import com.mutant.wordsmaster.data.Word
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.data.source.WordsRepository
+import com.mutant.wordsmaster.services.JsoupHelper
+import com.mutant.wordsmaster.util.trace.DebugHelper
 
 
-class AddEditWordPresenter(private val context: Context,
-                           private val mWordId: String?,
-                           private val mWordsRepository: WordsRepository?,
+class AddEditWordPresenter(private val mWordId: String?,
+                           private val mWordsRepository: WordsRepository,
                            private val mAddEditWordView: AddEditWordContract.View,
                            private val mShouldLoadDataFromRepo: Boolean) :
         AddEditWordContract.Present, WordsLocalContract.GetWordCallback {
@@ -75,9 +81,63 @@ class AddEditWordPresenter(private val context: Context,
         return mIsDataMissing
     }
 
-    override fun translate(activity: Activity, sourceText: String) {
+    @SuppressLint("SetJavaScriptEnabled")
+    override fun parseHtmlFromWebView(context: Context, sourceText: String) {
+        val webView = WebView(context)
 
-//        Thread(Runnable {
+        webView.settings.javaScriptEnabled = true
+        webView.clearHistory()
+        webView.clearCache(true)
+        webView.settings.builtInZoomControls = true
+        webView.settings.cacheMode = WebSettings.LOAD_NO_CACHE
+        webView.settings.setSupportZoom(true)
+        webView.settings.useWideViewPort = false
+        webView.settings.loadWithOverviewMode = false
+        webView.addJavascriptInterface(LoadListener(), "HTMLOUT")
+        var isLoaded = false
+        webView.webViewClient = object : WebViewClient() {
+
+            override fun onPageFinished(view: WebView, url: String) {
+                if(!isLoaded)
+//                    Handler().postDelayed({ webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);"); }, 5000)
+                    webView.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
+            }
+        }
+
+        // TODO srcLang and tgtLang must be parameters.
+        webView.loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
+    }
+
+    /**
+     * We execute javascript to get html after website page loading finished.
+     * Do not remove this code, it is not useless.
+     */
+    private inner class LoadListener {
+
+        @JavascriptInterface
+        fun processHTML(html: String) {
+            DebugHelper.d(TAG, "processHTML: $html")
+            mWordsRepository.parseHtml(html, object : WordsRemoteContract.GetWordCallback {
+                override fun onWordLoaded(word: Word) {
+                    setWordToView(word)
+                }
+
+                override fun onDataNotAvailable() {
+                    DebugHelper.e(TAG, "processHTML: html parse to word failed.")
+                }
+
+            })
+        }
+    }
+
+    private fun setWordToView(word: Word) {
+        if(word.title.isNotEmpty()) mAddEditWordView.setTitle(word.title)
+        if(word.explanation != null) mAddEditWordView.setExplanation(word.explanation)
+        if(word.eg != null) mAddEditWordView.setEg(word.eg)
+    }
+
+    override fun translate(activity: Activity, sourceText: String) {
+        //        Thread(Runnable {
 //            val translate = TranslateOptions.newBuilder()
 //                    .setApiKey("AIzaSyA3NIbkZXrty6xHMPxJ27-Zr73PtTqaTlI").build().service
 //            val sourceLanguage = "en"
@@ -91,19 +151,10 @@ class AddEditWordPresenter(private val context: Context,
 //                mAddEditWordView.setExplanation(translation.translatedText)
 //            }
 //        }).start()
-        mWordsRepository?.getWordFromGoogle(context, sourceText, object : WordsRemoteContract.GetWordCallback {
-
-            override fun onWordLoaded(word: Word?) {
-                // TODO
-            }
-
-            override fun onDataNotAvailable() {
-                // TODO
-            }
-
-        })
     }
 
-
+    companion object {
+        private val TAG = AddEditWordPresenter::class.java.simpleName
+    }
 
 }

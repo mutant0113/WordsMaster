@@ -16,14 +16,14 @@ class Word(@PrimaryKey
            @ColumnInfo(name = "entryid")
            val id: String,
            @ColumnInfo(name = "title")
-           val title: String,
+           var title: String,
            @ColumnInfo(name = "explanation")
-           val explanation: String?,
+           var explanation: String?,
            /**
             * Sentence making with keyword
             */
            @ColumnInfo(name = "eg")
-           val eg: String?) {
+           var eg: String?) {
 
     val titleForList: String
         get() = title
@@ -40,7 +40,8 @@ class Word(@PrimaryKey
      */
     @Ignore
     constructor(title: String, explanation: String?, eg: String?) : this(UUID.randomUUID().toString(), title, explanation, eg)
-//
+
+    //
 //    /**
 //     * Use this constructor to create an active Task if the Task already has an id (copy of another
 //     * Task).
@@ -51,7 +52,8 @@ class Word(@PrimaryKey
 //     */
 //    @Ignore
 //    constructor(id: String, title: String?, description: String?) : this(id, title, description)
-
+    @Ignore
+    constructor() : this(UUID.randomUUID().toString(), "", "", "")
 
     override fun equals(o: Any?): Boolean {
         if (this === o) return true

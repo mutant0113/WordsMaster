@@ -1,21 +1,26 @@
 package com.mutant.wordsmaster.services
 
-import android.content.Context
 import android.util.Log
 import com.mutant.wordsmaster.data.Word
 import org.jsoup.Jsoup
-
+import org.jsoup.select.Elements
 
 
 class JsoupHelper {
 
     companion object {
 
-        var TAG = JsoupHelper::class.java.simpleName!!
+        private val TAG = JsoupHelper::class.java.simpleName
         private const val GOOGLE_TRANSLATE_URL = "https://translate.google.com/"
         private const val USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.152 Safari/537.36"
 
-        fun getRawHtml(context: Context, srcLang: String, tgtLang: String, word: String): Word? {
+        fun getUrl() : String = GOOGLE_TRANSLATE_URL
+
+        /**
+         * Connect to google translate website and get raw html. Then parse it into Word(POJO).
+         * But we face a big problem here is that JSoup won't wait javascript to execute, so we'll miss some html code.
+         */
+        fun getRawHtml(srcLang: String, tgtLang: String, word: String): Word? {
             try {
                 val completedUrl = "$GOOGLE_TRANSLATE_URL#$srcLang/$tgtLang/$word"
                 val document = Jsoup.connect(completedUrl)
@@ -31,11 +36,43 @@ class JsoupHelper {
             return null
         }
 
-        fun parseHtml(rawHtml: String): Word? {
-            val document = Jsoup.parse(rawHtml)
-            val elements = document.select("div.gt-cd-pos")
-            Log.i("result", elements[0].text())
-            return null
+        /**
+         * Only parse html into Word(POJO).
+         */
+        fun parseHtml(html: String): Word? {
+            val document = Jsoup.parse(html)
+            val word = Word()
+            parseTitle(word, document.select(Selector.Title.outer))
+            parseDefinition(word, document.select(Selector.Definition.outer))
+            parseExample(word, document.select(Selector.Example.outer))
+            return word
+        }
+
+        private fun parseTitle(word: Word, outer: Elements?) {
+            val title = outer?.get(1)?.select(Selector.Title.title)?.text()
+            word.title = title ?: ""
+        }
+
+        private fun parseDefinition(word: Word, outer: Elements?) {
+            val engDef = outer?.get(1)
+            val size = engDef?.select(Selector.Definition.cdPos)?.size ?: 0
+            val stringBuilder = StringBuilder()
+            for(i in 0 until size) {
+                val title = engDef?.select(Selector.Definition.cdPos)?.get(i)?.text()
+                val def = engDef?.select(Selector.Definition.defRow)?.get(i)?.text()
+                val example = engDef?.select(Selector.Definition.defExample)?.get(i)?.text()
+                stringBuilder.appendln("$title, $def, $example")
+            }
+            word.explanation = stringBuilder.toString()
+        }
+
+        private fun parseExample(word: Word, outer: Elements?) {
+            val size = outer?.size ?: 0
+            val stringBuilder = StringBuilder()
+            for(i in 0 until size) {
+                stringBuilder.appendln(outer?.get(i)?.text())
+            }
+            word.eg = stringBuilder.toString()
         }
     }
 

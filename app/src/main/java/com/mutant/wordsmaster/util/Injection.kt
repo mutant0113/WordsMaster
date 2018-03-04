@@ -30,7 +30,7 @@ import com.mutant.wordsmaster.data.source.remote.WordsRemoteModel
  */
 object Injection {
 
-    fun provideTasksRepository(context: Context): WordsRepository? {
+    fun provideTasksRepository(context: Context): WordsRepository {
         val database = WordsDatabase.getInstance(context)
         val appExecutors = AppExecutors()
         return WordsRepository.getInstance(WordsRemoteModel.getInstance(appExecutors)!!,
