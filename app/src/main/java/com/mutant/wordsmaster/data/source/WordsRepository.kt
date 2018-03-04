@@ -1,11 +1,12 @@
 package com.mutant.wordsmaster.data.source
 
 import android.arch.persistence.room.Entity
+import android.content.Context
 import com.mutant.wordsmaster.data.Word
 
 @Entity(tableName = "words")
-class WordsRepository private constructor(private val mWordsRemoteDataSource: WordsDataSource,
-                              private val mWordsLocalDataSource: WordsDataSource): WordsDataSource {
+class WordsRepository private constructor(private val mWordsRemoteModel: WordsRemoteContract,
+                                          private val mWordsLocalModel: WordsLocalContract) {
     /**
      * This variable has package local visibility so it can be accessed from tests.
      */
@@ -17,36 +18,46 @@ class WordsRepository private constructor(private val mWordsRemoteDataSource: Wo
      */
     private var mCacheIsDirty = false
 
-    override fun getWords(callback: WordsDataSource.LoadWordsCallback) {
-        if(mCachedWords.isNotEmpty() && !mCacheIsDirty) {
+    fun getWords(callback: WordsLocalContract.LoadWordsCallback) {
+        if (mCachedWords.isNotEmpty() && !mCacheIsDirty) {
             callback.onWordsLoaded(ArrayList<Word>(mCachedWords.values))
         }
 
-        if(!mCacheIsDirty) {
-            getWordsFromRemoteDataSource(callback)
-        } else {
-            mWordsLocalDataSource.getWords(object : WordsDataSource.LoadWordsCallback {
-
-                override fun onWordsLoaded(words: List<Word>) {
-                    refreshCache(words)
-                    callback.onWordsLoaded(words)
-                }
-
-                override fun onDataNotAvailable() {
-                    getWordsFromRemoteDataSource(callback)
-                }
-
-            })
-        }
-    }
-
-    private fun getWordsFromRemoteDataSource(callback: WordsDataSource.LoadWordsCallback) {
-        mWordsRemoteDataSource.getWords(object : WordsDataSource.LoadWordsCallback {
+        mWordsLocalModel.getWords(object : WordsLocalContract.LoadWordsCallback {
 
             override fun onWordsLoaded(words: List<Word>) {
                 refreshCache(words)
-                refreshLocalDataSource(words)
-                callback.onWordsLoaded(ArrayList<Word>(mCachedWords.values))
+                callback.onWordsLoaded(words)
+            }
+
+            override fun onDataNotAvailable() {
+                // TODO use firebase in the future
+//              getWordsFromRemoteDataSource(callback)
+            }
+
+        })
+    }
+
+    private fun getWordFromRemoteDataSource(wordTitle: String, callback: WordsRemoteContract.GetWordCallback) {
+
+    }
+
+    private fun refreshCache(words: List<Word>) {
+        mCachedWords.clear()
+        for (word in words) {
+            mCachedWords[word.id] = word
+        }
+    }
+
+    fun refreshWords() {
+        mCacheIsDirty = true
+    }
+
+    fun getWordFromGoogle(context: Context, sourceText: String, callback: WordsRemoteContract.GetWordCallback) {
+        mWordsRemoteModel.getWord(context, sourceText, object : WordsRemoteContract.GetWordCallback {
+
+            override fun onWordLoaded(word: Word?) {
+                callback.onWordLoaded(word)
             }
 
             override fun onDataNotAvailable() {
@@ -55,50 +66,41 @@ class WordsRepository private constructor(private val mWordsRemoteDataSource: Wo
         })
     }
 
-    private fun refreshLocalDataSource(tasks: List<Word>) {
-        mWordsLocalDataSource.deleteAllWords()
-        for (task in tasks) {
-            mWordsLocalDataSource.saveWord(task)
-        }
+    fun getWordFromLocal(wordId: String, callback: WordsLocalContract.GetWordCallback) {
+        mWordsLocalModel.getWord(wordId, object : WordsLocalContract.GetWordCallback {
+
+            override fun onWordLoaded(word: Word) {
+                callback.onWordLoaded(word)
+            }
+
+            override fun onDataNotAvailable() {
+                callback.onDataNotAvailable()
+            }
+
+        })
     }
 
-    private fun refreshCache(words: List<Word>) {
-        mCachedWords.clear()
-        for (word in words) {
-            mCachedWords[word.id] = word
-        }
-        mCacheIsDirty = false
-    }
-
-    override fun getWord(wordId: String, callback: WordsDataSource.GetWordCallback) {
-
-    }
-
-    override fun saveWord(word: Word) {
-        mWordsLocalDataSource.saveWord(word)
-//        mWordsRemoteDataSource.saveWord(word)
+    fun saveWord(word: Word) {
+        mWordsLocalModel.saveWord(word)
+//        mWordsRemoteModel.saveWord(word)
         mCachedWords[word.id] = word
     }
 
-    override fun deleteWord(wordId: String) {
-        mWordsLocalDataSource.deleteWord(wordId)
-//        mWordsRemoteDataSource.deleteWord(wordId)
+    fun deleteWord(wordId: String) {
+        mWordsLocalModel.deleteWord(wordId)
+//        mWordsRemoteModel.deleteWord(wordId)
         mCachedWords.remove(wordId)
     }
 
-    override fun deleteAllWords() {
-        mWordsLocalDataSource.deleteAllWords()
-//        mWordsRemoteDataSource.deleteAllWords()
+    fun deleteAllWords() {
+        mWordsLocalModel.deleteAllWords()
+//        mWordsRemoteModel.deleteAllWords()
         mCachedWords.clear()
     }
 
-    override fun refreshWords() {
-        mCacheIsDirty = true
-    }
-
-    override fun swapPosition(wordId1: String, wordId2: String) {
-        mWordsLocalDataSource.swapPosition(wordId1, wordId2)
-//        mWordsRemoteDataSource.swapPosition(wordId1, wordId2)
+    fun swapPosition(wordId1: String, wordId2: String) {
+        mWordsLocalModel.swapPosition(wordId1, wordId2)
+//        mWordsRemoteModel.swapPosition(wordId1, wordId2)
 //        mCachedWords.
     }
 
@@ -108,14 +110,14 @@ class WordsRepository private constructor(private val mWordsRemoteDataSource: Wo
         /**
          * Returns the single instance of this class, creating it if necessary.
          *
-         * @param wordsRemoteDataSource the backend data source
-         * @param wordsLocalDataSource  the device storage data source
+         * @param wordsRemoteModel the backend data source
+         * @param wordsLocalModel  the device storage data source
          * @return the [WordsRepository] instance
          */
-        fun getInstance(wordsRemoteDataSource: WordsDataSource,
-                        wordsLocalDataSource: WordsDataSource): WordsRepository? {
+        fun getInstance(wordsRemoteModel: WordsRemoteContract,
+                        wordsLocalModel: WordsLocalContract): WordsRepository? {
             if (INSTANCE == null) {
-                INSTANCE = WordsRepository(wordsRemoteDataSource, wordsLocalDataSource)
+                INSTANCE = WordsRepository(wordsRemoteModel, wordsLocalModel)
             }
             return INSTANCE
         }

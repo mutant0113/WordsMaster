@@ -2,6 +2,7 @@ package com.mutant.wordsmaster.words
 
 import android.content.Intent
 import android.graphics.Canvas
+import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -132,22 +133,33 @@ class WordsFragment : Fragment(), WordsContract.View {
             super.onSelectedChanged(viewHolder, actionState)
             if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                 viewHolder?.itemView?.alpha = 0.7f
+                viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
             }
         }
 
         override fun clearView(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {
             super.clearView(recyclerView, viewHolder)
-            viewHolder?.itemView?.alpha = 1.0f
+            clearHighlight(viewHolder)
         }
 
         override fun onChildDraw(c: Canvas?, recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                val width : Int? = viewHolder?.itemView?.width
-                val alpha = if(width != null) 1 - Math.abs(dX) / width else 1f
+                val width: Int? = viewHolder?.itemView?.width
+                val alpha = if (width != null) 1 - Math.abs(dX) / width else 1f
 
                 viewHolder?.itemView?.alpha = alpha
+                // Set background color to white when dx is 0 which means not to swipe
+                if (dX == 0f) viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
+                else viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
+            } else if (actionState == ItemTouchHelper.ANIMATION_TYPE_SWIPE_CANCEL) {
+                clearHighlight(viewHolder)
             }
+        }
+
+        fun clearHighlight(viewHolder: RecyclerView.ViewHolder?) {
+            viewHolder?.itemView?.alpha = 1.0f
+            viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
         }
 
     }
@@ -165,7 +177,8 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     override fun showNoWords() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        view?.recycler_view_words?.visibility = View.GONE
+        view?.linearLayout_no_words?.visibility = View.VISIBLE
     }
 
     override fun showSuccessfullySavedMessage() {

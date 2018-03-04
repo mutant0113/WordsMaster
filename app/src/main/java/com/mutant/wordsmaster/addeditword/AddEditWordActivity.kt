@@ -45,7 +45,7 @@ class AddEditWordActivity : AppCompatActivity() {
         }
 
         // Create the presenter
-        mAddEditWordPresenter = AddEditWordPresenter(wordId,
+        mAddEditWordPresenter = AddEditWordPresenter(this, wordId,
                 Injection.provideTasksRepository(applicationContext), addEditWordFragment, shouldLoadDataFromRepo)
 
     }

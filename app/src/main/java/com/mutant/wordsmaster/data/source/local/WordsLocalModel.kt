@@ -18,21 +18,21 @@ package com.mutant.wordsmaster.data.source.local
 
 import android.support.annotation.VisibleForTesting
 import com.mutant.wordsmaster.data.Word
-import com.mutant.wordsmaster.data.source.WordsDataSource
+import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.util.AppExecutors
 
 
 /**
  * Concrete implementation of a data source as a db.
  */
-class WordsLocalDataSource// Prevent direct instantiation.
+class WordsLocalModel// Prevent direct instantiation.
 private constructor(private val mAppExecutors: AppExecutors,
-                    private val mWordsDao: WordsDao) : WordsDataSource {
+                    private val mWordsDao: WordsDao) : WordsLocalContract {
     /**
-     * Note: [WordsDataSource.LoadWordsCallback.onDataNotAvailable] is fired if the database doesn't exist
+     * Note: [WordsLocalContract.LoadWordsCallback.onDataNotAvailable] is fired if the database doesn't exist
      * or the table is empty.
      */
-    override fun getWords(callback: WordsDataSource.LoadWordsCallback) {
+    override fun getWords(callback: WordsLocalContract.LoadWordsCallback) {
         val runnable = Runnable {
             val words = mWordsDao.words
             mAppExecutors.mainThread().execute({
@@ -48,7 +48,7 @@ private constructor(private val mAppExecutors: AppExecutors,
         mAppExecutors.diskIO().execute(runnable)
     }
 
-    override fun getWord(wordId: String, callback: WordsDataSource.GetWordCallback) {
+    override fun getWord(wordId: String, callback: WordsLocalContract.GetWordCallback) {
         val runnable = Runnable {
             val word = mWordsDao.getWordById(wordId)
             mAppExecutors.mainThread().execute({
@@ -92,14 +92,14 @@ private constructor(private val mAppExecutors: AppExecutors,
     companion object {
 
         @Volatile
-        private var INSTANCE: WordsLocalDataSource? = null
+        private var INSTANCE: WordsLocalContract? = null
 
         fun getInstance(appExecutors: AppExecutors,
-                        wordsDao: WordsDao): WordsLocalDataSource? {
+                        wordsDao: WordsDao): WordsLocalContract? {
             if (INSTANCE == null) {
-                synchronized(WordsLocalDataSource::class.java) {
+                synchronized(WordsLocalContract::class.java) {
                     if (INSTANCE == null) {
-                        INSTANCE = WordsLocalDataSource(appExecutors, wordsDao)
+                        INSTANCE = WordsLocalModel(appExecutors, wordsDao)
                     }
                 }
             }

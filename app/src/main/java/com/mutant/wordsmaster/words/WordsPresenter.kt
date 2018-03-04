@@ -3,10 +3,10 @@ package com.mutant.wordsmaster.words
 import android.app.Activity
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
 import com.mutant.wordsmaster.data.Word
-import com.mutant.wordsmaster.data.source.WordsDataSource
+import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRepository
 
-class WordsPresenter(private val mWordsRepository: WordsRepository,
+class WordsPresenter(private val mWordsRepository: WordsRepository?,
                      private val mWordsView: WordsContract.View) : WordsContract.Presenter {
 
     init {
@@ -28,14 +28,14 @@ class WordsPresenter(private val mWordsRepository: WordsRepository,
     }
 
     /**
-     * @param forceUpdate   Pass in true to refresh the data in the {@link WordsDataSource}
+     * @param forceUpdate   Pass in true to refresh the data in the {@link WordsLocalContract}
      * @param showLoadingUI Pass in true to display a loading icon in the UI
      */
     private fun loadWords(forceUpdate: Boolean, showLoadingUI: Boolean) {
         if(showLoadingUI) mWordsView.setLoadingIndicator(true)
-        if(forceUpdate) mWordsRepository.refreshWords()
+        if(forceUpdate) mWordsRepository?.refreshWords()
 
-        mWordsRepository.getWords(object : WordsDataSource.LoadWordsCallback {
+        mWordsRepository?.getWords(object : WordsLocalContract.LoadWordsCallback {
 
             override fun onWordsLoaded(words: List<Word>) {
                 if(!mWordsView.isActive()) return
@@ -61,7 +61,7 @@ class WordsPresenter(private val mWordsRepository: WordsRepository,
     }
 
     override fun deleteWord(wordId: String) {
-        mWordsRepository.deleteWord(wordId)
+        mWordsRepository?.deleteWord(wordId)
         loadWords(true)
     }
 

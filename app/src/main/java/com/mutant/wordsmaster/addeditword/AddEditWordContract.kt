@@ -1,5 +1,6 @@
 package com.mutant.wordsmaster.addeditword
 
+import android.app.Activity
 import com.mutant.wordsmaster.util.BasePresenter
 import com.mutant.wordsmaster.util.BaseView
 
@@ -23,5 +24,6 @@ interface AddEditWordContract {
          */
         fun populateWord()
         fun isDataMissing(): Boolean
+        fun translate(activity: Activity, sourceText: String)
     }
 }

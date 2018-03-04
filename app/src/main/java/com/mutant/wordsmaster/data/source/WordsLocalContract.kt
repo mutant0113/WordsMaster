@@ -2,7 +2,7 @@ package com.mutant.wordsmaster.data.source
 
 import com.mutant.wordsmaster.data.Word
 
-interface WordsDataSource {
+interface WordsLocalContract {
 
     interface LoadWordsCallback {
         fun onWordsLoaded(words: List<Word>)
