@@ -24,6 +24,10 @@
             android:name="com.mutant.wordsmaster.addeditword.AddEditWordActivity"
             android:windowSoftInputMode="stateVisible|adjustResize"
             android:label="@string/add_word" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="7ce5188ce41314d71d03e4010a6ead910a372d12" />
     </application>
 
 

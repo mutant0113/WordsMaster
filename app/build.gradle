@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+apply plugin: 'io.fabric'
+
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
@@ -40,6 +42,10 @@ android {
         exclude 'project.properties'
         exclude 'META-INF/INDEX.LIST'
     }
+}
+
+androidExtensions {
+    experimental = true
 }
 
 dependencies {
@@ -108,4 +114,14 @@ dependencies {
 
 repositories {
     mavenCentral()
+    maven { url 'https://maven.fabric.io/public' }
+}
+
+apply plugin: 'com.google.gms.google-services'
+
+dependencies {
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
+        transitive = true
+    }
+    compile 'com.google.firebase:firebase-core:11.8.0'
 }
