@@ -62,11 +62,10 @@
 
             </android.support.v7.widget.LinearLayoutCompat>
 
-            <android.support.v7.widget.AppCompatEditText
-                android:id="@+id/edit_text_eg"
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_example"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="e.g." />
+                android:layout_height="wrap_content" />
 
         </android.support.v7.widget.LinearLayoutCompat>
 

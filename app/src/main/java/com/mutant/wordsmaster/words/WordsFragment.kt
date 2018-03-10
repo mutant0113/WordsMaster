@@ -20,7 +20,7 @@ import com.mutant.wordsmaster.data.source.model.Word
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
-import kotlinx.android.synthetic.main.view_words.view.*
+import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
 
 /**
@@ -195,10 +195,11 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     class WordsAdapter(private var mWords: List<Word>,
-                       private val mWordsItemListener: WordsItemListener) : RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
+                       private val mWordsItemListener: WordsItemListener) :
+            RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.view_words, parent, false)
+            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
             val params = itemView.layoutParams
 //            params.width = ViewGroup.LayoutParams.MATCH_PARENT
 //            params.height = 400
@@ -227,7 +228,7 @@ class WordsFragment : Fragment(), WordsContract.View {
             val word = mWords[position]
             holder?.mTextViewTitle?.text = word.title
             // TODO
-            if(word.definitions.isNotEmpty()) {
+            if (word.definitions.isNotEmpty()) {
                 holder?.mTextViewDef?.text = word.definitions[0].def
             }
             holder?.mTextViewExample?.text = word.examples[0]

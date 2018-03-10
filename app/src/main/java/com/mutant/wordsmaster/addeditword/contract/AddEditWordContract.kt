@@ -19,7 +19,7 @@ interface AddEditWordContract {
 
         fun setDefinition(definitions: ArrayList<Definition>)
 
-        fun setExample(example: ArrayList<String>)
+        fun setExample(examples: ArrayList<String>)
 
         fun isActive(): Boolean
 
