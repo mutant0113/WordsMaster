@@ -18,15 +18,16 @@ import kotlinx.android.synthetic.main.item_def.view.*
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     private var mPresenter: AddEditWordContract.Present? = null
+    private var mDefinitions = arrayListOf<Definition>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
         (activity as AddEditWordActivity).setSupportActionBar(toolbar)
 
-        // TODO add definitions and examples
+        // TODO add definitionsJson and examples
         root.fab_edit_word_done.setOnClickListener {
             mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
-                    arrayListOf(), edit_text_eg.text.toString())
+                    mDefinitions, edit_text_eg.text.toString())
         }
         return root
     }
@@ -63,6 +64,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     override fun setDefinition(definitions: List<Definition>?) {
         if(definitions == null) return
+        mDefinitions = definitions as ArrayList<Definition>
         for(def in definitions)
             linear_layout_def.addView(getDefView(definition = def))
     }

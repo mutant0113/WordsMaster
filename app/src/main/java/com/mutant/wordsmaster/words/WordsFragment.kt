@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
+import com.mutant.wordsmaster.data.source.model.DefConverter
 import com.mutant.wordsmaster.data.source.model.Word
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
@@ -227,7 +228,10 @@ class WordsFragment : Fragment(), WordsContract.View {
             val word = mWords[position]
             holder?.mTextViewTitle?.text = word.title
             // TODO
-            holder?.mTextViewDef?.text = word.definitions?.get(0)?.def
+            if(!word.definitionsJson.isNullOrBlank()) {
+                val definitions = DefConverter.toDefs(word.definitionsJson)
+                holder?.mTextViewDef?.text = definitions?.get(0)?.def
+            }
             holder?.mTextViewExample?.text = word.example
         }
 

@@ -11,6 +11,7 @@ import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.data.source.WordsRepository
+import com.mutant.wordsmaster.data.source.model.DefConverter
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.services.JsoupHelper
@@ -56,7 +57,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
         } else {
-            mWordsRepository?.saveWord(word)
+            mWordsRepository.saveWord(word)
             mAddEditWordView.showWordsList()
         }
     }
@@ -72,7 +73,8 @@ class AddEditWordPresenter(private val mWordId: String?,
     override fun onWordLoaded(word: Word) {
         if (!mAddEditWordView.isActive()) return
         mAddEditWordView.setTitle(word.title)
-        mAddEditWordView.setDefinition(word.definitions)
+        val definitions = DefConverter.toDefs(word.definitionsJson)
+        mAddEditWordView.setDefinition(definitions)
         mAddEditWordView.setExample(word.example)
         mIsDataMissing = false
     }
@@ -136,7 +138,10 @@ class AddEditWordPresenter(private val mWordId: String?,
     private fun setWordToView(word: Word) {
         if(!mSearchWordView.isActive()) return
         if(!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
-        if(word.definitions != null) mAddEditWordView.setDefinition(word.definitions)
+        if(!word.definitionsJson.isNullOrBlank()) {
+            val definitions = DefConverter.toDefs(word.definitionsJson)
+            mAddEditWordView.setDefinition(definitions)
+        }
         if(!word.example.isNullOrBlank()) mAddEditWordView.setExample(word.example)
         mSearchWordView.showWord()
     }

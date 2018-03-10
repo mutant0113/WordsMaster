@@ -1,8 +1,13 @@
 package com.mutant.wordsmaster.data.source.model
 
-import android.arch.persistence.room.*
+import android.arch.persistence.room.ColumnInfo
+import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
+import android.arch.persistence.room.PrimaryKey
 import com.google.common.base.Strings
 import java.util.*
+
+
 
 /**
  * Immutable model class for a Task.
@@ -16,9 +21,8 @@ data class Word(
         @ColumnInfo(name = "title")
         var title: String,
 
-        @TypeConverters(DefConverter::class)
-        @ColumnInfo(name = "definitions")
-        var definitions: List<Definition>?,
+        @ColumnInfo(name = "definitionsJson")
+        var definitionsJson: String?,
 
         /**
          * Sentence making with keyword
@@ -40,7 +44,8 @@ data class Word(
      * @param example    e.g. of the word
      */
     @Ignore
-    constructor(title: String, definition: List<Definition>?, example: String?) : this(UUID.randomUUID().toString(), title, definition, example)
+    constructor(title: String, definitions: List<Definition>?, example: String?) :
+            this(UUID.randomUUID().toString(), title, DefConverter.toJson(definitions), example)
 
     //
 //    /**
@@ -54,6 +59,6 @@ data class Word(
 //    @Ignore
 //    constructor(id: String, title: String?, description: String?) : this(id, title, description)
     @Ignore
-    constructor() : this(UUID.randomUUID().toString(), "", arrayListOf(), "")
+    constructor() : this(UUID.randomUUID().toString(), "", "", "")
 
 }
