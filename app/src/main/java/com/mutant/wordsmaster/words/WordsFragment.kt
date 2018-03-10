@@ -1,8 +1,6 @@
 package com.mutant.wordsmaster.words
 
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
@@ -17,6 +15,8 @@ import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
 import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.util.ui.ItemListener
+import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
@@ -29,7 +29,7 @@ import java.util.*
 class WordsFragment : Fragment(), WordsContract.View {
 
     private var mPresenter: WordsContract.Presenter? = null
-    private var mListAdapter: WordsAdapter? = null
+    private lateinit var mListAdapter: WordsAdapter
 
     companion object {
 
@@ -82,7 +82,7 @@ class WordsFragment : Fragment(), WordsContract.View {
      * Show all words in the CardView.
      */
     override fun showWords(words: List<Word>) {
-        mListAdapter?.replaceData(words)
+        mListAdapter.replaceData(words)
 
         view?.recycler_view_words?.visibility = View.VISIBLE
         view?.linearLayout_no_words?.visibility = View.GONE
@@ -91,77 +91,24 @@ class WordsFragment : Fragment(), WordsContract.View {
     /**
      * Listener for clicks and swipes on words in the ListView.
      */
-    private val mItemListener = object : WordsItemListener {
+    private val mItemListener = object : ItemListener<Word> {
 
-        override fun onItemClick(clickedWord: Word) {
+        override fun onItemClick(data: Word) {
             val intent = Intent(context, AddEditWordActivity::class.java)
             // TODO
 //            startActivity(intent)
         }
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-            Collections.swap(mListAdapter?.getData(), fromPosition, toPosition)
-            mListAdapter?.notifyItemMoved(fromPosition, toPosition)
+            Collections.swap(mListAdapter.getData(), fromPosition, toPosition)
+            mListAdapter.notifyItemMoved(fromPosition, toPosition)
             return true
         }
 
         override fun onItemSwipe(position: Int) {
-            mPresenter?.deleteWord(mListAdapter?.getData()!![position].id)
-            mListAdapter?.notifyItemRemoved(position)
+            mPresenter?.deleteWord(mListAdapter.getData()[position].id)
+            mListAdapter.notifyItemRemoved(position)
         }
-    }
-
-    private class ItemTouchHelperCallback(private val mItemListener: WordsItemListener) :
-            ItemTouchHelper.Callback() {
-
-        override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
-            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-            return makeMovementFlags(dragFlags, swipeFlags)
-        }
-
-        override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder,
-                            target: RecyclerView.ViewHolder): Boolean {
-            return mItemListener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            mItemListener.onItemSwipe(viewHolder.adapterPosition)
-        }
-
-        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-            super.onSelectedChanged(viewHolder, actionState)
-            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                viewHolder?.itemView?.alpha = 0.7f
-                viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
-            }
-        }
-
-        override fun clearView(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {
-            super.clearView(recyclerView, viewHolder)
-            clearHighlight(viewHolder)
-        }
-
-        override fun onChildDraw(c: Canvas?, recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                val width: Int? = viewHolder?.itemView?.width
-                val alpha = if (width != null) 1 - Math.abs(dX) / width else 1f
-
-                viewHolder?.itemView?.alpha = alpha
-                // Set background color to white when dx is 0 which means not to swipe
-                if (dX == 0f) viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
-                else viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
-            } else if (actionState == ItemTouchHelper.ANIMATION_TYPE_SWIPE_CANCEL) {
-                clearHighlight(viewHolder)
-            }
-        }
-
-        fun clearHighlight(viewHolder: RecyclerView.ViewHolder?) {
-            viewHolder?.itemView?.alpha = 1.0f
-            viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
-        }
-
     }
 
     /**
@@ -195,7 +142,7 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     class WordsAdapter(private var mWords: List<Word>,
-                       private val mWordsItemListener: WordsItemListener) :
+                       private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
@@ -206,7 +153,7 @@ class WordsFragment : Fragment(), WordsContract.View {
             itemView.layoutParams = params
             val holder = ViewHolder(itemView, itemView.text_view_title, itemView.text_view_explanation, itemView.text_view_eg)
             itemView.setOnClickListener({
-                mWordsItemListener.onItemClick(mWords[holder.adapterPosition])
+                mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
             return holder
         }
@@ -243,15 +190,6 @@ class WordsFragment : Fragment(), WordsContract.View {
                          val mTextViewDef: TextView,
                          val mTextViewExample: TextView) : RecyclerView.ViewHolder(mItemView)
 
-    }
-
-    interface WordsItemListener {
-
-        fun onItemClick(clickedWord: Word)
-
-        fun onItemMove(fromPosition: Int, toPosition: Int): Boolean
-
-        fun onItemSwipe(position: Int)
     }
 
 }

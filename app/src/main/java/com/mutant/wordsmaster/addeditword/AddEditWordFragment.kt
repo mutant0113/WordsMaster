@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +14,13 @@ import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.data.source.model.Definition
-import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.util.ui.ItemListener
+import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.fragment_addword.*
 import kotlinx.android.synthetic.main.fragment_addword.view.*
 import kotlinx.android.synthetic.main.item_def.view.*
 import kotlinx.android.synthetic.main.item_examples.view.*
+import java.util.*
 
 
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
@@ -25,6 +28,11 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     private var mPresenter: AddEditWordContract.Present? = null
     private var mDefinitions = arrayListOf<Definition>()
     private lateinit var mExampleAdapter: ExamplesAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
@@ -34,6 +42,12 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
                     mDefinitions, mExampleAdapter.getData())
         }
+
+        val recyclerViewExample = root.recycler_view_example
+        recyclerViewExample.layoutManager = LinearLayoutManager(activity)
+        recyclerViewExample.adapter = mExampleAdapter
+        val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
+        itemTouchHelper.attachToRecyclerView(recyclerViewExample)
         return root
     }
 
@@ -80,38 +94,42 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         return root
     }
 
+    private val mItemListener = object : ItemListener<String> {
+
+        override fun onItemClick(data: String) {
+            // do nothing
+        }
+
+        override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+            Collections.swap(mExampleAdapter.getData(), fromPosition, toPosition)
+            mExampleAdapter.notifyItemMoved(fromPosition, toPosition)
+            return true
+        }
+
+        override fun onItemSwipe(position: Int) {
+            mExampleAdapter.notifyItemRemoved(position)
+        }
+    }
+
     override fun setExample(examples: ArrayList<String>) {
-        mExampleAdapter = ExamplesAdapter(examples, object : WordsItemListener {
-
-            override fun onItemClick(clickedExample: String) {
-            }
-
-            override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-                return false
-            }
-
-            override fun onItemSwipe(position: Int) {
-            }
-        })
-        recycler_view_example.layoutManager = LinearLayoutManager(activity)
-        recycler_view_example.adapter = mExampleAdapter
+        mExampleAdapter.replaceData(examples)
     }
 
     class ExamplesAdapter(private var mExample: ArrayList<String>,
-                          private val mWordsItemListener: WordsItemListener) :
+                          private val mItemListener: ItemListener<String>) :
             RecyclerView.Adapter<ExamplesAdapter.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
             val holder = ViewHolder(itemView, itemView.text_view_example)
             itemView.setOnClickListener({
-                mWordsItemListener.onItemClick(mExample[holder.adapterPosition])
+                mItemListener.onItemClick(mExample[holder.adapterPosition])
             })
             return holder
         }
 
-        fun replaceData(word: Word) {
-            setData(word.examples)
+        fun replaceData(examples: ArrayList<String>) {
+            setData(examples)
             notifyDataSetChanged()
         }
 
@@ -135,15 +153,6 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         class ViewHolder(mItemView: View, val mTextViewExample: TextView) :
                 RecyclerView.ViewHolder(mItemView)
 
-    }
-
-    interface WordsItemListener {
-
-        fun onItemClick(clickedExample: String)
-
-        fun onItemMove(fromPosition: Int, toPosition: Int): Boolean
-
-        fun onItemSwipe(position: Int)
     }
 
     override fun isActive(): Boolean {
