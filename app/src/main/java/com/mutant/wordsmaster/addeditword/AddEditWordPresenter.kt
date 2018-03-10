@@ -11,7 +11,6 @@ import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.data.source.WordsRepository
-import com.mutant.wordsmaster.data.source.model.DefConverter
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.services.JsoupHelper
@@ -44,7 +43,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         return mWordId == null
     }
 
-    override fun saveWord(title: String, definitions: List<Definition>?, example: String?) {
+    override fun saveWord(title: String, definitions: ArrayList<Definition>, example: String?) {
         if (isEditMode()) {
             createNewWord(title, definitions, example)
         } else {
@@ -52,7 +51,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         }
     }
 
-    private fun createNewWord(title: String, definitions: List<Definition>?, example: String?) {
+    private fun createNewWord(title: String, definitions: ArrayList<Definition>, example: String?) {
         val word = Word(title, definitions, example)
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
@@ -73,8 +72,7 @@ class AddEditWordPresenter(private val mWordId: String?,
     override fun onWordLoaded(word: Word) {
         if (!mAddEditWordView.isActive()) return
         mAddEditWordView.setTitle(word.title)
-        val definitions = DefConverter.toDefs(word.definitionsJson)
-        mAddEditWordView.setDefinition(definitions)
+        mAddEditWordView.setDefinition(word.definitions)
         mAddEditWordView.setExample(word.example)
         mIsDataMissing = false
     }
@@ -104,7 +102,7 @@ class AddEditWordPresenter(private val mWordId: String?,
     private val mWebViewClient = object : WebViewClient() {
 
         override fun onPageFinished(view: WebView, url: String) {
-            if(!misWebViewLoaded) {
+            if (!misWebViewLoaded) {
                 view.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
                 misWebViewLoaded = true
             }
@@ -127,7 +125,7 @@ class AddEditWordPresenter(private val mWordId: String?,
 
                 override fun onDataNotAvailable() {
                     DebugHelper.e(TAG, "processHTML: html parse to word failed.")
-                    if(mSearchWordView.isActive())
+                    if (mSearchWordView.isActive())
                         mSearchWordView.showNoSuchWordError()
                 }
 
@@ -136,13 +134,10 @@ class AddEditWordPresenter(private val mWordId: String?,
     }
 
     private fun setWordToView(word: Word) {
-        if(!mSearchWordView.isActive()) return
-        if(!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
-        if(!word.definitionsJson.isNullOrBlank()) {
-            val definitions = DefConverter.toDefs(word.definitionsJson)
-            mAddEditWordView.setDefinition(definitions)
-        }
-        if(!word.example.isNullOrBlank()) mAddEditWordView.setExample(word.example)
+        if (!mSearchWordView.isActive()) return
+        if (!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
+        mAddEditWordView.setDefinition(word.definitions)
+        if (!word.example.isNullOrBlank()) mAddEditWordView.setExample(word.example)
         mSearchWordView.showWord()
     }
 

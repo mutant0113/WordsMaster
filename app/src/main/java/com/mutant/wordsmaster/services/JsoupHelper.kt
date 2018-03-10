@@ -1,7 +1,6 @@
 package com.mutant.wordsmaster.services
 
 import android.util.Log
-import com.mutant.wordsmaster.data.source.model.DefConverter
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
 import org.jsoup.Jsoup
@@ -47,7 +46,7 @@ class JsoupHelper {
             parseTitle(word, document.select(Selector.Title.outer))
             parseDefinition(word, document.select(Selector.Definition.outer))
             parseExample(word, document.select(Selector.Example.outer))
-            return if (word.title.isBlank() || word.definitionsJson == null) null else word
+            return if (word.title.isBlank() || word.definitions.isEmpty()) null else word
         }
 
         private fun parseTitle(word: Word, outer: Elements?) {
@@ -66,7 +65,7 @@ class JsoupHelper {
                 var definition = Definition(pos, def, example)
                 definitions.add(definition)
             }
-            word.definitionsJson = DefConverter.toJson(definitions)
+            word.definitions = definitions
         }
 
         private fun parseExample(word: Word, outer: Elements?) {

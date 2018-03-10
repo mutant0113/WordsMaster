@@ -62,9 +62,9 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         toolbar.title = title
     }
 
-    override fun setDefinition(definitions: List<Definition>?) {
+    override fun setDefinition(definitions: ArrayList<Definition>) {
         if(definitions == null) return
-        mDefinitions = definitions as ArrayList<Definition>
+        mDefinitions = definitions
         for(def in definitions)
             linear_layout_def.addView(getDefView(definition = def))
     }

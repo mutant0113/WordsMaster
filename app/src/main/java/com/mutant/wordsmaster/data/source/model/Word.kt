@@ -8,7 +8,6 @@ import com.google.common.base.Strings
 import java.util.*
 
 
-
 /**
  * Immutable model class for a Task.
  */
@@ -22,7 +21,7 @@ data class Word(
         var title: String,
 
         @ColumnInfo(name = "definitionsJson")
-        var definitionsJson: String?,
+        var definitions: ArrayList<Definition>,
 
         /**
          * Sentence making with keyword
@@ -44,8 +43,8 @@ data class Word(
      * @param example    e.g. of the word
      */
     @Ignore
-    constructor(title: String, definitions: List<Definition>?, example: String?) :
-            this(UUID.randomUUID().toString(), title, DefConverter.toJson(definitions), example)
+    constructor(title: String, definitions: ArrayList<Definition>, example: String?) :
+            this(UUID.randomUUID().toString(), title, definitions, example)
 
     //
 //    /**
@@ -59,6 +58,6 @@ data class Word(
 //    @Ignore
 //    constructor(id: String, title: String?, description: String?) : this(id, title, description)
     @Ignore
-    constructor() : this(UUID.randomUUID().toString(), "", "", "")
+    constructor() : this(UUID.randomUUID().toString(), "", arrayListOf<Definition>(), "")
 
 }

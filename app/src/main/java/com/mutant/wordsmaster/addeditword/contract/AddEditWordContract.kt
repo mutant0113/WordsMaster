@@ -17,7 +17,7 @@ interface AddEditWordContract {
 
         fun setTitle(title: String)
 
-        fun setDefinition(definitions: List<Definition>?)
+        fun setDefinition(definitions: ArrayList<Definition>)
 
         fun setExample(example: String?)
 
@@ -27,7 +27,7 @@ interface AddEditWordContract {
 
     interface Present : BasePresenter {
 
-        fun saveWord(title: String, definitions: List<Definition>?, example: String?)
+        fun saveWord(title: String, definitions: ArrayList<Definition>, example: String?)
 
         /**
          * If it is in edition, populate TextViews with data
