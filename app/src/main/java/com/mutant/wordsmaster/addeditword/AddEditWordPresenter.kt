@@ -43,16 +43,16 @@ class AddEditWordPresenter(private val mWordId: String?,
         return mWordId == null
     }
 
-    override fun saveWord(title: String, definitions: ArrayList<Definition>, example: String?) {
+    override fun saveWord(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) {
         if (isEditMode()) {
-            createNewWord(title, definitions, example)
+            createNewWord(title, definitions, examples)
         } else {
-            updateWord(title, definitions, example)
+            updateWord(title, definitions, examples)
         }
     }
 
-    private fun createNewWord(title: String, definitions: ArrayList<Definition>, example: String?) {
-        val word = Word(title, definitions, example)
+    private fun createNewWord(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) {
+        val word = Word(title, definitions, examples)
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
         } else {
@@ -61,7 +61,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         }
     }
 
-    private fun updateWord(title: String, definitions: List<Definition>?, example: String?) {
+    private fun updateWord(title: String, definitions: List<Definition>?, examples: ArrayList<String>) {
         // TODO
     }
 
@@ -73,7 +73,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         if (!mAddEditWordView.isActive()) return
         mAddEditWordView.setTitle(word.title)
         mAddEditWordView.setDefinition(word.definitions)
-        mAddEditWordView.setExample(word.example)
+        mAddEditWordView.setExample(word.examples)
         mIsDataMissing = false
     }
 
@@ -137,7 +137,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         if (!mSearchWordView.isActive()) return
         if (!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
         mAddEditWordView.setDefinition(word.definitions)
-        if (!word.example.isNullOrBlank()) mAddEditWordView.setExample(word.example)
+        mAddEditWordView.setExample(word.examples)
         mSearchWordView.showWord()
     }
 

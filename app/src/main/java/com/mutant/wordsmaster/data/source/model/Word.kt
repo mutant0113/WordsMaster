@@ -27,7 +27,7 @@ data class Word(
          * Sentence making with keyword
          */
         @ColumnInfo(name = "example")
-        var example: String?) {
+        var examples: ArrayList<String>) {
 
     val titleForList: String
         get() = title
@@ -43,8 +43,8 @@ data class Word(
      * @param example    e.g. of the word
      */
     @Ignore
-    constructor(title: String, definitions: ArrayList<Definition>, example: String?) :
-            this(UUID.randomUUID().toString(), title, definitions, example)
+    constructor(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) :
+            this(UUID.randomUUID().toString(), title, definitions, examples)
 
     //
 //    /**
@@ -58,6 +58,6 @@ data class Word(
 //    @Ignore
 //    constructor(id: String, title: String?, description: String?) : this(id, title, description)
     @Ignore
-    constructor() : this(UUID.randomUUID().toString(), "", arrayListOf<Definition>(), "")
+    constructor() : this(UUID.randomUUID().toString(), "", arrayListOf<Definition>(), arrayListOf<String>())
 
 }

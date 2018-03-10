@@ -19,15 +19,15 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     private var mPresenter: AddEditWordContract.Present? = null
     private var mDefinitions = arrayListOf<Definition>()
+    private var mExamples = arrayListOf<String>()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
         (activity as AddEditWordActivity).setSupportActionBar(toolbar)
 
-        // TODO add definitionsJson and examples
         root.fab_edit_word_done.setOnClickListener {
             mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
-                    mDefinitions, edit_text_eg.text.toString())
+                    mDefinitions, mExamples)
         }
         return root
     }
@@ -76,8 +76,9 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         return root
     }
 
-    override fun setExample(example: String?) {
-        edit_text_eg.setText(example)
+    override fun setExample(examples: ArrayList<String>) {
+        // TODO adater
+        edit_text_eg.setText(examples[0])
     }
 
     override fun isActive(): Boolean {

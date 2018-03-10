@@ -230,7 +230,7 @@ class WordsFragment : Fragment(), WordsContract.View {
             if(word.definitions.isNotEmpty()) {
                 holder?.mTextViewDef?.text = word.definitions[0].def
             }
-            holder?.mTextViewExample?.text = word.example
+            holder?.mTextViewExample?.text = word.examples[0]
         }
 
         fun getData(): List<Word> {

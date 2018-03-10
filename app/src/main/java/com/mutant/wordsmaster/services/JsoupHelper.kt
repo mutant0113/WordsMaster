@@ -70,12 +70,11 @@ class JsoupHelper {
 
         private fun parseExample(word: Word, outer: Elements?) {
             val size = outer?.size ?: 0
-            val stringBuilder = StringBuilder()
+            val examples = arrayListOf<String>()
             for (i in 0 until size) {
-                stringBuilder.appendln(outer?.get(i)?.text())
-                stringBuilder.appendln()
+                examples.add(outer?.get(i)?.text() ?: "")
             }
-            word.example = stringBuilder.toString()
+            word.examples = examples
         }
     }
 
