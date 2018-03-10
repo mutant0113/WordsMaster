@@ -3,6 +3,7 @@ package com.mutant.wordsmaster.addeditword.contract
 import android.app.Activity
 import android.content.Context
 import com.mutant.wordsmaster.addeditword.AddEditWordPresenter
+import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.util.BasePresenter
 import com.mutant.wordsmaster.util.BaseView
 
@@ -16,9 +17,9 @@ interface AddEditWordContract {
 
         fun setTitle(title: String)
 
-        fun setExplanation(explanation: String?)
+        fun setDefinition(definitions: List<Definition>?)
 
-        fun setEg(eg: String?)
+        fun setExample(example: String?)
 
         fun isActive(): Boolean
 
@@ -26,7 +27,7 @@ interface AddEditWordContract {
 
     interface Present : BasePresenter {
 
-        fun saveWord(title: String, explanation: String?, eg: String?)
+        fun saveWord(title: String, definitions: List<Definition>?, example: String?)
 
         /**
          * If it is in edition, populate TextViews with data

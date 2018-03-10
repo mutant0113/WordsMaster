@@ -17,7 +17,7 @@
 package com.mutant.wordsmaster.data.source.local
 
 import android.arch.persistence.room.*
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 
 /**
  * Data Access Object for the words table.

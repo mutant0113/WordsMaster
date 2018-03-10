@@ -1,7 +1,7 @@
 package com.mutant.wordsmaster.data.source
 
 import android.arch.persistence.room.Entity
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 
 @Entity(tableName = "words")
 class WordsRepository private constructor(private val mWordsRemoteModel: WordsRemoteContract,

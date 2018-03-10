@@ -1,6 +1,6 @@
 package com.mutant.wordsmaster.words
 
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.BasePresenter
 import com.mutant.wordsmaster.util.BaseView
 

@@ -4,15 +4,15 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
+import com.mutant.wordsmaster.data.source.model.Definition
 import kotlinx.android.synthetic.main.fragment_addword.*
 import kotlinx.android.synthetic.main.fragment_addword.view.*
+import kotlinx.android.synthetic.main.item_def.view.*
 
 
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
@@ -21,27 +21,14 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
+        (activity as AddEditWordActivity).setSupportActionBar(toolbar)
+
+        // TODO add definitions and examples
         root.fab_edit_word_done.setOnClickListener {
-            mPresenter?.saveWord(edit_text_title.text.toString(),
-                    edit_text_explanation.text.toString(), edit_text_eg.text.toString())
+            mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
+                    arrayListOf(), edit_text_eg.text.toString())
         }
-        root.edit_text_title.addTextChangedListener(mTitleTextWatcher)
         return root
-    }
-
-    private val mTitleTextWatcher = object : TextWatcher {
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            // TODO use button instead of translating immediately
-            mPresenter?.translate(activity, s.toString())
-        }
-
     }
 
     override fun onResume() {
@@ -62,7 +49,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun showEmptyWordError() {
-        Snackbar.make(edit_text_title, getString(R.string.empty_word_message), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(collapsing_toolbar_layout, getString(R.string.empty_word_message), Snackbar.LENGTH_LONG).show()
     }
 
     override fun showWordsList() {
@@ -71,15 +58,24 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun setTitle(title: String) {
-        edit_text_title.setText(title)
+        toolbar.title = title
     }
 
-    override fun setExplanation(explanation: String?) {
-        edit_text_explanation.setText(explanation)
+    override fun setDefinition(definitions: List<Definition>?) {
+        if(definitions == null) return
+        for(def in definitions)
+            linear_layout_def.addView(getDefView(definition = def))
     }
 
-    override fun setEg(eg: String?) {
-        edit_text_eg.setText(eg)
+    private fun getDefView(definition: Definition): View {
+        val root = this.layoutInflater.inflate(R.layout.item_def, null, false)
+        root.text_view_pos.text = definition.pos
+        root.text_view_def.text = definition.def
+        return root
+    }
+
+    override fun setExample(example: String?) {
+        edit_text_eg.setText(example)
     }
 
     override fun isActive(): Boolean {

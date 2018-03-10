@@ -1,7 +1,8 @@
 package com.mutant.wordsmaster.services
 
 import android.util.Log
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.data.source.model.Word
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 
@@ -45,7 +46,7 @@ class JsoupHelper {
             parseTitle(word, document.select(Selector.Title.outer))
             parseDefinition(word, document.select(Selector.Definition.outer))
             parseExample(word, document.select(Selector.Example.outer))
-            return if (word.title.isBlank() || word.explanation == null) null else word
+            return if (word.title.isBlank() || word.definitions == null) null else word
         }
 
         private fun parseTitle(word: Word, outer: Elements?) {
@@ -56,15 +57,15 @@ class JsoupHelper {
         private fun parseDefinition(word: Word, outer: Elements?) {
             val engDef = outer?.get(1)
             val size = engDef?.select(Selector.Definition.cdPos)?.size ?: 0
-            val stringBuilder = StringBuilder()
+            val definitions = arrayListOf<Definition>()
             for (i in 0 until size) {
-                val title = engDef?.select(Selector.Definition.cdPos)?.get(i)?.text()
+                val pos = engDef?.select(Selector.Definition.cdPos)?.get(i)?.text()
                 val def = engDef?.select(Selector.Definition.defRow)?.get(i)?.text()
                 val example = engDef?.select(Selector.Definition.defExample)?.get(i)?.text()
-                stringBuilder.appendln("$title, $def, $example")
-                stringBuilder.appendln()
+                var definition = Definition(pos, def, example)
+                definitions.add(definition)
             }
-            word.explanation = stringBuilder.toString()
+            word.definitions = definitions
         }
 
         private fun parseExample(word: Word, outer: Elements?) {
@@ -74,7 +75,7 @@ class JsoupHelper {
                 stringBuilder.appendln(outer?.get(i)?.text())
                 stringBuilder.appendln()
             }
-            word.eg = stringBuilder.toString()
+            word.example = stringBuilder.toString()
         }
     }
 

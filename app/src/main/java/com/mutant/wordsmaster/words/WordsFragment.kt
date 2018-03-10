@@ -16,7 +16,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
@@ -226,8 +226,9 @@ class WordsFragment : Fragment(), WordsContract.View {
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
             val word = mWords[position]
             holder?.mTextViewTitle?.text = word.title
-            holder?.mTextViewExplanation?.text = word.explanation
-            holder?.mTextViewEg?.text = word.eg
+            // TODO
+            holder?.mTextViewDef?.text = word.definitions?.get(0)?.def
+            holder?.mTextViewExample?.text = word.example
         }
 
         fun getData(): List<Word> {
@@ -236,8 +237,8 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         class ViewHolder(mItemView: View,
                          val mTextViewTitle: TextView,
-                         val mTextViewExplanation: TextView,
-                         val mTextViewEg: TextView) : RecyclerView.ViewHolder(mItemView)
+                         val mTextViewDef: TextView,
+                         val mTextViewExample: TextView) : RecyclerView.ViewHolder(mItemView)
 
     }
 

@@ -19,14 +19,17 @@ package com.mutant.wordsmaster.data.source.local
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.Room
 import android.arch.persistence.room.RoomDatabase
+import android.arch.persistence.room.TypeConverters
 import android.content.Context
+import com.mutant.wordsmaster.data.source.model.DefConverter
 
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 
 /**
  * The Room Database that contains the Task table.
  */
 @Database(entities = [(Word::class)], version = 1)
+@TypeConverters(DefConverter::class)
 abstract class WordsDatabase : RoomDatabase() {
 
     abstract fun wordDao(): WordsDao

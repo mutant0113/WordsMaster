@@ -2,7 +2,7 @@ package com.mutant.wordsmaster.words
 
 import android.app.Activity
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRepository
 
