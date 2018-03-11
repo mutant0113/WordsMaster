@@ -2,6 +2,7 @@ package com.mutant.wordsmaster.data.source
 
 import android.arch.persistence.room.Entity
 import com.mutant.wordsmaster.data.source.model.Word
+import java.util.*
 
 @Entity(tableName = "words")
 class WordsRepository private constructor(private val mWordsRemoteModel: WordsRemoteContract,
@@ -20,12 +21,12 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
 
     override fun getWords(callback: WordsLocalContract.LoadWordsCallback) {
         if (mCachedWords.isNotEmpty() && !mCacheIsDirty) {
-            callback.onWordsLoaded(ArrayList<Word>(mCachedWords.values))
+            callback.onWordsLoaded(LinkedList(mCachedWords.values))
         }
 
         mWordsLocalModel.getWords(object : WordsLocalContract.LoadWordsCallback {
 
-            override fun onWordsLoaded(words: List<Word>) {
+            override fun onWordsLoaded(words: MutableList<Word>) {
                 refreshCache(words)
                 callback.onWordsLoaded(words)
             }
@@ -86,10 +87,12 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         mCachedWords.clear()
     }
 
-    override fun swapPosition(wordId1: String, wordId2: String) {
-        mWordsLocalModel.swapPosition(wordId1, wordId2)
-//        mWordsRemoteModel.swapPosition(wordId1, wordId2)
-//        mCachedWords.
+    override fun swap(word1: Word, word2: Word) {
+        mWordsLocalModel.swap(word1, word2)
+        val updateWord1 = word1.copy(id = word2.id)
+        val updateWord2 = word2.copy(id = word1.id)
+        mCachedWords[updateWord1.id] = updateWord1
+        mCachedWords[updateWord2.id] = updateWord2
     }
 
     override fun parseHtml(html: String, callback: WordsRemoteContract.GetWordCallback){

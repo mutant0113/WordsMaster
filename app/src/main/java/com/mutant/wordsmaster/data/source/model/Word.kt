@@ -15,19 +15,19 @@ import java.util.*
 data class Word(
         @PrimaryKey
         @ColumnInfo(name = "entryid")
-        val id: String,
+        var id: String,
 
         @ColumnInfo(name = "title")
         var title: String,
 
         @ColumnInfo(name = "definitionsJson")
-        var definitions: ArrayList<Definition>,
+        var definitions: MutableList<Definition>,
 
         /**
          * Sentence making with keyword
          */
         @ColumnInfo(name = "example")
-        var examples: ArrayList<String>) {
+        var examples: MutableList<String>) {
 
     val titleForList: String
         get() = title
@@ -43,7 +43,7 @@ data class Word(
      * @param example    e.g. of the word
      */
     @Ignore
-    constructor(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) :
+    constructor(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) :
             this(UUID.randomUUID().toString(), title, definitions, examples)
 
     //
@@ -58,6 +58,6 @@ data class Word(
 //    @Ignore
 //    constructor(id: String, title: String?, description: String?) : this(id, title, description)
     @Ignore
-    constructor() : this(UUID.randomUUID().toString(), "", arrayListOf<Definition>(), arrayListOf<String>())
+    constructor() : this(UUID.randomUUID().toString(), "", mutableListOf<Definition>(), mutableListOf<String>())
 
 }

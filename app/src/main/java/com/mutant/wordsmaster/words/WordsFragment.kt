@@ -20,6 +20,7 @@ import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.util.Tts
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_words.*
@@ -37,6 +38,7 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     private var mPresenter: WordsContract.Presenter? = null
     private lateinit var mListAdapter: WordsAdapter
+    private var mTts: Tts? = null
 
     companion object {
 
@@ -47,7 +49,8 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mListAdapter = WordsAdapter(activity, listOf(), mItemListener)
+        mTts = Tts.newInstance(context.applicationContext)
+        mListAdapter = WordsAdapter(activity, LinkedList(), mItemListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -97,13 +100,14 @@ class WordsFragment : Fragment(), WordsContract.View {
     /**
      * Show all words in the CardView.
      */
-    override fun showWords(words: List<Word>) {
+    override fun showWords(words: MutableList<Word>) {
         mListAdapter.replaceData(words)
 
         view?.recycler_view_words?.visibility = View.VISIBLE
         view?.linearLayout_no_words?.visibility = View.GONE
     }
 
+    // TODO logical should move to presenter
     /**
      * Listener for clicks and swipes on words in the ListView.
      */
@@ -116,15 +120,24 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-            Collections.swap(mListAdapter.getData(), fromPosition, toPosition)
+            val words = mListAdapter.getData()
+            val word1 = words[fromPosition]
+            val word2 = words[toPosition]
+            mPresenter?.swap(word1 = word1, word2 = word2)
+            Collections.swap(words, fromPosition, toPosition)
+
+            // Need to swap id otherwise, update db will go wrong.
+            word1.id = word2.id.also { word2.id = word1.id }
             mListAdapter.notifyItemMoved(fromPosition, toPosition)
             return true
         }
 
         override fun onItemSwipe(position: Int) {
             mPresenter?.deleteWord(mListAdapter.getData()[position].id)
+            mListAdapter.getData().removeAt(position)
             mListAdapter.notifyItemRemoved(position)
         }
+
     }
 
     /**
@@ -157,8 +170,13 @@ class WordsFragment : Fragment(), WordsContract.View {
         return isAdded
     }
 
-    class WordsAdapter(private val mActivity: Activity,
-                       private var mWords: List<Word>,
+    override fun onDestroy() {
+        mTts?.release()
+        super.onDestroy()
+    }
+
+    inner class WordsAdapter(private val mActivity: Activity,
+                       private var mWords: MutableList<Word>,
                        private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
@@ -167,8 +185,9 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand,
-                    itemView.image_view_expand, itemView.linear_layout_card_def)
+            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.image_view_pron,
+                    itemView.frame_layout_click_to_expand, itemView.image_view_expand,
+                    itemView.linear_layout_card_def)
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
@@ -182,15 +201,19 @@ class WordsFragment : Fragment(), WordsContract.View {
                 notifyItemChanged(position)
             }
 
+            holder.mImageViewPron.setOnClickListener({
+                mTts?.speak(holder.mTextViewTitle.text)
+            })
+
             return holder
         }
 
-        fun replaceData(words: List<Word>) {
+        fun replaceData(words: MutableList<Word>) {
             setList(words)
             notifyDataSetChanged()
         }
 
-        private fun setList(words: List<Word>) {
+        private fun setList(words: MutableList<Word>) {
             mWords = words
         }
 
@@ -220,7 +243,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         // TODO maybe reduce code
-        private fun setDefinition(holder: ViewHolder, definitions: ArrayList<Definition>) {
+        private fun setDefinition(holder: ViewHolder, definitions: List<Definition>) {
             holder.mLinearLayoutDef.removeAllViews()
             for (def in definitions)
                 holder.mLinearLayoutDef.addView(getDefView(definition = def))
@@ -233,12 +256,13 @@ class WordsFragment : Fragment(), WordsContract.View {
             return root
         }
 
-        fun getData(): List<Word> {
+        fun getData(): MutableList<Word> {
             return mWords
         }
 
         inner class ViewHolder(mItemView: View,
                                val mTextViewTitle: TextView,
+                               val mImageViewPron: ImageView,
                                val mFrameLayoutClickToExpand: ContentFrameLayout,
                                val mImagerViewExpand: ImageView,
                                val mLinearLayoutDef: LinearLayoutCompat) :
