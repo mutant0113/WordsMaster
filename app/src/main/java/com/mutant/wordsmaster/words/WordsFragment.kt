@@ -63,6 +63,14 @@ class WordsFragment : Fragment(), WordsContract.View {
         recyclerViewWords.adapter = mListAdapter
         val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
         itemTouchHelper.attachToRecyclerView(recyclerViewWords)
+
+        recyclerViewWords.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                if (dy > 0) fab.hide()
+                else fab.show()
+                super.onScrolled(recyclerView, dx, dy)
+            }
+        })
         return root
     }
 
@@ -160,7 +168,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
             val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand,
-                    itemView.image_view_expand, itemView.linear_layout_def)
+                    itemView.image_view_expand, itemView.linear_layout_card_def)
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mWords[holder.adapterPosition])
             })

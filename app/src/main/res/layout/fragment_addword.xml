@@ -76,6 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_volume_up_white_24px"
+        app:elevation="6dp"
         app:fabSize="normal"
         app:layout_anchor="@id/collapsing_toolbar_layout"
         app:layout_anchorGravity="bottom|end" />

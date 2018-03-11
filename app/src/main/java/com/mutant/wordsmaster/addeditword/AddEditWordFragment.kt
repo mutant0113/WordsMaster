@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.widget.NestedScrollView
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
@@ -21,6 +22,8 @@ import kotlinx.android.synthetic.main.fragment_addword.view.*
 import kotlinx.android.synthetic.main.item_def.view.*
 import kotlinx.android.synthetic.main.item_examples.view.*
 import java.util.*
+
+
 
 
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
@@ -48,6 +51,15 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         recyclerViewExample.adapter = mExampleAdapter
         val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
         itemTouchHelper.attachToRecyclerView(recyclerViewExample)
+
+        root.scroll_view.setOnScrollChangeListener(
+                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY > oldScrollY) {
+                root.fab_edit_word_done.hide()
+            } else {
+                root.fab_edit_word_done.show()
+            }
+        })
         return root
     }
 
