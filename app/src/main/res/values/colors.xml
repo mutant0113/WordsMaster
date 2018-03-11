@@ -6,4 +6,7 @@
 
     <drawable name="completedTaskBackground">#CCCCCC</drawable>
     <drawable name="touchFeedback">#CFD8DC</drawable>
+
+    <color name="card_background">#118C4E</color>
+    <color name="card_def">#C1E1A6</color>
 </resources>

@@ -1,26 +1,31 @@
 package com.mutant.wordsmaster.words
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.ContentFrameLayout
+import android.support.v7.widget.LinearLayoutCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
+import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
+import kotlinx.android.synthetic.main.item_def.view.*
 import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
 
@@ -42,7 +47,7 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mListAdapter = WordsAdapter(listOf(), mItemListener)
+        mListAdapter = WordsAdapter(activity, listOf(), mItemListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -144,7 +149,8 @@ class WordsFragment : Fragment(), WordsContract.View {
         return isAdded
     }
 
-    class WordsAdapter(private var mWords: List<Word>,
+    class WordsAdapter(private val mActivity: Activity,
+                       private var mWords: List<Word>,
                        private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
@@ -153,15 +159,21 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand, itemView.text_view_expand)
+            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand,
+                    itemView.image_view_expand, itemView.linear_layout_def)
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
-//            holder.mTextViewExpand.setOnClickListener({
-//                mExpandedPosition = isExpanded ?-1:position;
-//                notifyItemChanged(mPreExpandedPosition)
-//                notifyItemChanged(position);
-//            })
+
+            holder.mFrameLayoutClickToExpand.setOnClickListener {
+                val position = holder.adapterPosition
+                val isExpanded = position == mExpandedPosition
+
+                mExpandedPosition = if (isExpanded) -1 else position
+                notifyItemChanged(mPreExpandedPosition)
+                notifyItemChanged(position)
+            }
+
             return holder
         }
 
@@ -178,30 +190,51 @@ class WordsFragment : Fragment(), WordsContract.View {
             return mWords.size
         }
 
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val isExpanded = position == mExpandedPosition
-            holder?.mTextViewExpand?.visibility = if (isExpanded) View.VISIBLE else View.GONE
-            holder?.mFrameLayoutClickToExpand?.isActivated = isExpanded
-            if (isExpanded) mPreExpandedPosition = position
-            holder?.mFrameLayoutClickToExpand?.setOnClickListener {
-                mExpandedPosition = if (isExpanded) -1 else position
-                notifyItemChanged(mPreExpandedPosition)
-                notifyItemChanged(position)
-                // TODO change icon
+            holder.mLinearLayoutDef.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            holder.itemView.isActivated = isExpanded
+
+            if (isExpanded) {
+                mPreExpandedPosition = position
+                holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_less_white_24px)
+            } else {
+                holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_more_white_24px)
             }
 
             val word = mWords[position]
-            holder?.mTextViewTitle?.text = word.title
+            setTitle(holder, word.title)
+            setDefinition(holder, word.definitions)
+        }
+
+        private fun setTitle(holder: ViewHolder, title: String) {
+            holder.mTextViewTitle.text = title
+        }
+
+        // TODO maybe reduce code
+        private fun setDefinition(holder: ViewHolder, definitions: ArrayList<Definition>) {
+            holder.mLinearLayoutDef.removeAllViews()
+            for (def in definitions)
+                holder.mLinearLayoutDef.addView(getDefView(definition = def))
+        }
+
+        private fun getDefView(definition: Definition): View {
+            val root = mActivity.layoutInflater.inflate(R.layout.item_def, null, false)
+            root.text_view_pos.text = definition.pos
+            root.text_view_def.text = definition.def
+            return root
         }
 
         fun getData(): List<Word> {
             return mWords
         }
 
-        class ViewHolder(mItemView: View,
-                         val mTextViewTitle: TextView,
-                         val mFrameLayoutClickToExpand: ContentFrameLayout,
-                         val mTextViewExpand: TextView) : RecyclerView.ViewHolder(mItemView)
+        inner class ViewHolder(mItemView: View,
+                               val mTextViewTitle: TextView,
+                               val mFrameLayoutClickToExpand: ContentFrameLayout,
+                               val mImagerViewExpand: ImageView,
+                               val mLinearLayoutDef: LinearLayoutCompat) :
+                RecyclerView.ViewHolder(mItemView)
 
 
     }

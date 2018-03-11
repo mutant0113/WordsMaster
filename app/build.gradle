@@ -111,8 +111,6 @@ dependencies {
     // Jsoup
     compile 'org.jsoup:jsoup:1.9.2'
 
-    // Third party view
-    compile 'com.bignerdranch.android:expandablerecyclerview:3.0.0-RC1'
 }
 
 repositories {
