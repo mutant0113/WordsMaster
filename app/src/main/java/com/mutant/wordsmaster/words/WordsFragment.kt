@@ -31,6 +31,8 @@ import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
 
 
+
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -50,7 +52,7 @@ class WordsFragment : Fragment(), WordsContract.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mTts = Tts.newInstance(context.applicationContext)
-        mListAdapter = WordsAdapter(activity, listOf(), mItemListener)
+        mListAdapter = WordsAdapter(activity, LinkedList(), mItemListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -93,13 +95,14 @@ class WordsFragment : Fragment(), WordsContract.View {
     /**
      * Show all words in the CardView.
      */
-    override fun showWords(words: List<Word>) {
+    override fun showWords(words: MutableList<Word>) {
         mListAdapter.replaceData(words)
 
         view?.recycler_view_words?.visibility = View.VISIBLE
         view?.linearLayout_no_words?.visibility = View.GONE
     }
 
+    // TODO logical should move to presenter
     /**
      * Listener for clicks and swipes on words in the ListView.
      */
@@ -112,15 +115,24 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-            Collections.swap(mListAdapter.getData(), fromPosition, toPosition)
+            val words = mListAdapter.getData()
+            val word1 = words[fromPosition]
+            val word2 = words[toPosition]
+            mPresenter?.swap(word1 = word1, word2 = word2)
+            Collections.swap(words, fromPosition, toPosition)
+
+            // Need to swap id otherwise, update db will go wrong.
+            word1.id = word2.id.also { word2.id = word1.id }
             mListAdapter.notifyItemMoved(fromPosition, toPosition)
             return true
         }
 
         override fun onItemSwipe(position: Int) {
             mPresenter?.deleteWord(mListAdapter.getData()[position].id)
+            mListAdapter.getData().removeAt(position)
             mListAdapter.notifyItemRemoved(position)
         }
+
     }
 
     /**
@@ -159,7 +171,7 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     inner class WordsAdapter(private val mActivity: Activity,
-                       private var mWords: List<Word>,
+                       private var mWords: MutableList<Word>,
                        private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
@@ -191,12 +203,12 @@ class WordsFragment : Fragment(), WordsContract.View {
             return holder
         }
 
-        fun replaceData(words: List<Word>) {
+        fun replaceData(words: MutableList<Word>) {
             setList(words)
             notifyDataSetChanged()
         }
 
-        private fun setList(words: List<Word>) {
+        private fun setList(words: MutableList<Word>) {
             mWords = words
         }
 
@@ -226,7 +238,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         // TODO maybe reduce code
-        private fun setDefinition(holder: ViewHolder, definitions: ArrayList<Definition>) {
+        private fun setDefinition(holder: ViewHolder, definitions: List<Definition>) {
             holder.mLinearLayoutDef.removeAllViews()
             for (def in definitions)
                 holder.mLinearLayoutDef.addView(getDefView(definition = def))
@@ -239,7 +251,7 @@ class WordsFragment : Fragment(), WordsContract.View {
             return root
         }
 
-        fun getData(): List<Word> {
+        fun getData(): MutableList<Word> {
             return mWords
         }
 

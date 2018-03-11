@@ -27,7 +27,7 @@ import java.util.*
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     private var mPresenter: AddEditWordContract.Present? = null
-    private var mDefinitions = arrayListOf<Definition>()
+    private var mDefinitions = mutableListOf<Definition>()
     private lateinit var mExampleAdapter: ExamplesAdapter
     private var mTts: Tts? = null
 
@@ -93,7 +93,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         toolbar.title = title
     }
 
-    override fun setDefinition(definitions: ArrayList<Definition>) {
+    override fun setDefinition(definitions: MutableList<Definition>) {
         mDefinitions = definitions
         for (def in definitions)
             linear_layout_def.addView(getDefView(definition = def))
@@ -123,11 +123,11 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
     }
 
-    override fun setExample(examples: ArrayList<String>) {
+    override fun setExample(examples: MutableList<String>) {
         mExampleAdapter.replaceData(examples)
     }
 
-    class ExamplesAdapter(private var mExample: ArrayList<String>,
+    class ExamplesAdapter(private var mExample: MutableList<String>,
                           private val mItemListener: ItemListener<String>) :
             RecyclerView.Adapter<ExamplesAdapter.ViewHolder>() {
 
@@ -141,12 +141,12 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             return holder
         }
 
-        fun replaceData(examples: ArrayList<String>) {
+        fun replaceData(examples: MutableList<String>) {
             setData(examples)
             notifyDataSetChanged()
         }
 
-        private fun setData(examples: ArrayList<String>) {
+        private fun setData(examples: MutableList<String>) {
             mExample = examples
         }
 
@@ -159,7 +159,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             holder?.mTextViewExample?.text = example
         }
 
-        fun getData(): ArrayList<String> {
+        fun getData(): MutableList<String> {
             return mExample
         }
 

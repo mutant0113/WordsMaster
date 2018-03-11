@@ -17,9 +17,9 @@ interface AddEditWordContract {
 
         fun setTitle(title: String)
 
-        fun setDefinition(definitions: ArrayList<Definition>)
+        fun setDefinition(definitions: MutableList<Definition>)
 
-        fun setExample(examples: ArrayList<String>)
+        fun setExample(examples: MutableList<String>)
 
         fun isActive(): Boolean
 
@@ -27,7 +27,7 @@ interface AddEditWordContract {
 
     interface Present : BasePresenter {
 
-        fun saveWord(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>)
+        fun saveWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>)
 
         /**
          * If it is in edition, populate TextViews with data

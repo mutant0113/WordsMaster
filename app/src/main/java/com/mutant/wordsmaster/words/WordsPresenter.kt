@@ -2,9 +2,9 @@ package com.mutant.wordsmaster.words
 
 import android.app.Activity
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
-import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRepository
+import com.mutant.wordsmaster.data.source.model.Word
 
 class WordsPresenter(private val mWordsRepository: WordsRepository?,
                      private val mWordsView: WordsContract.View) : WordsContract.Presenter {
@@ -37,7 +37,7 @@ class WordsPresenter(private val mWordsRepository: WordsRepository?,
 
         mWordsRepository?.getWords(object : WordsLocalContract.LoadWordsCallback {
 
-            override fun onWordsLoaded(words: List<Word>) {
+            override fun onWordsLoaded(words: MutableList<Word>) {
                 if(!mWordsView.isActive()) return
                 if(showLoadingUI) mWordsView.setLoadingIndicator(false)
                 processWords(words)
@@ -52,7 +52,7 @@ class WordsPresenter(private val mWordsRepository: WordsRepository?,
         })
     }
 
-    private fun processWords(words: List<Word>) {
+    private fun processWords(words: MutableList<Word>) {
         if(words.isEmpty()) mWordsView.showNoWords()
         else mWordsView.showWords(words)
     }
@@ -63,7 +63,10 @@ class WordsPresenter(private val mWordsRepository: WordsRepository?,
 
     override fun deleteWord(wordId: String) {
         mWordsRepository?.deleteWord(wordId)
-        loadWords(true)
+    }
+
+    override fun swap(word1: Word, word2: Word) {
+        mWordsRepository?.swap(word1, word2)
     }
 
 }

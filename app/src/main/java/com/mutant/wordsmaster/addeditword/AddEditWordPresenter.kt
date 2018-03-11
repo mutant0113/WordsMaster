@@ -43,7 +43,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         return mWordId == null
     }
 
-    override fun saveWord(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) {
+    override fun saveWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
         if (isEditMode()) {
             createNewWord(title, definitions, examples)
         } else {
@@ -51,7 +51,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         }
     }
 
-    private fun createNewWord(title: String, definitions: ArrayList<Definition>, examples: ArrayList<String>) {
+    private fun createNewWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
         val word = Word(title, definitions, examples)
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
@@ -61,7 +61,7 @@ class AddEditWordPresenter(private val mWordId: String?,
         }
     }
 
-    private fun updateWord(title: String, definitions: List<Definition>?, examples: ArrayList<String>) {
+    private fun updateWord(title: String, definitions: List<Definition>?, examples: MutableList<String>) {
         // TODO
     }
 
