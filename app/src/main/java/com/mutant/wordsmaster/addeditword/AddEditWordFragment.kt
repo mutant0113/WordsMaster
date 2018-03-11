@@ -14,6 +14,7 @@ import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.util.Tts
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.fragment_addword.*
@@ -28,10 +29,12 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     private var mPresenter: AddEditWordContract.Present? = null
     private var mDefinitions = arrayListOf<Definition>()
     private lateinit var mExampleAdapter: ExamplesAdapter
+    private var mTts: Tts? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
+        mTts = Tts.newInstance(context.applicationContext)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -48,12 +51,21 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         recyclerViewExample.adapter = mExampleAdapter
         val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
         itemTouchHelper.attachToRecyclerView(recyclerViewExample)
+
+        root.fab_pron.setOnClickListener({
+            mTts?.speak(toolbar.title)
+        })
         return root
     }
 
     override fun onResume() {
         super.onResume()
         mPresenter?.start()
+    }
+
+    override fun onDestroy() {
+        mTts?.release()
+        super.onDestroy()
     }
 
     companion object {
@@ -125,6 +137,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mExample[holder.adapterPosition])
             })
+
             return holder
         }
 

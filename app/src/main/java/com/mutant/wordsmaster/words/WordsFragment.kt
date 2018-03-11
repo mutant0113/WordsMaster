@@ -20,6 +20,7 @@ import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.util.Tts
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_words.*
@@ -37,6 +38,7 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     private var mPresenter: WordsContract.Presenter? = null
     private lateinit var mListAdapter: WordsAdapter
+    private var mTts: Tts? = null
 
     companion object {
 
@@ -47,6 +49,7 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mTts = Tts.newInstance(context.applicationContext)
         mListAdapter = WordsAdapter(activity, listOf(), mItemListener)
     }
 
@@ -74,6 +77,7 @@ class WordsFragment : Fragment(), WordsContract.View {
     override fun onResume() {
         super.onResume()
         mPresenter?.start()
+
     }
 
     override fun setPresent(presenter: WordsContract.Presenter) {
@@ -149,7 +153,12 @@ class WordsFragment : Fragment(), WordsContract.View {
         return isAdded
     }
 
-    class WordsAdapter(private val mActivity: Activity,
+    override fun onDestroy() {
+        mTts?.release()
+        super.onDestroy()
+    }
+
+    inner class WordsAdapter(private val mActivity: Activity,
                        private var mWords: List<Word>,
                        private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
@@ -159,8 +168,9 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand,
-                    itemView.image_view_expand, itemView.linear_layout_def)
+            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.image_view_pron,
+                    itemView.frame_layout_click_to_expand, itemView.image_view_expand,
+                    itemView.linear_layout_def)
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
@@ -173,6 +183,10 @@ class WordsFragment : Fragment(), WordsContract.View {
                 notifyItemChanged(mPreExpandedPosition)
                 notifyItemChanged(position)
             }
+
+            holder.mImageViewPron.setOnClickListener({
+                mTts?.speak(holder.mTextViewTitle.text)
+            })
 
             return holder
         }
@@ -231,6 +245,7 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         inner class ViewHolder(mItemView: View,
                                val mTextViewTitle: TextView,
+                               val mImageViewPron: ImageView,
                                val mFrameLayoutClickToExpand: ContentFrameLayout,
                                val mImagerViewExpand: ImageView,
                                val mLinearLayoutDef: LinearLayoutCompat) :
