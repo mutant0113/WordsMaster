@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.widget.ContentFrameLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
@@ -22,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
 import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
+
 
 /**
  * A placeholder fragment containing a simple view.
@@ -58,6 +60,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         itemTouchHelper.attachToRecyclerView(recyclerViewWords)
         return root
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         mPresenter?.result(requestCode, resultCode)
@@ -145,16 +148,20 @@ class WordsFragment : Fragment(), WordsContract.View {
                        private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
+        private var mExpandedPosition = -1
+        private var mPreExpandedPosition = -1
+
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
-            val params = itemView.layoutParams
-//            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-//            params.height = 400
-            itemView.layoutParams = params
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.text_view_explanation, itemView.text_view_eg)
+            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.frame_layout_click_to_expand, itemView.text_view_expand)
             itemView.setOnClickListener({
                 mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
+//            holder.mTextViewExpand.setOnClickListener({
+//                mExpandedPosition = isExpanded ?-1:position;
+//                notifyItemChanged(mPreExpandedPosition)
+//                notifyItemChanged(position);
+//            })
             return holder
         }
 
@@ -172,13 +179,19 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+            val isExpanded = position == mExpandedPosition
+            holder?.mTextViewExpand?.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            holder?.mFrameLayoutClickToExpand?.isActivated = isExpanded
+            if (isExpanded) mPreExpandedPosition = position
+            holder?.mFrameLayoutClickToExpand?.setOnClickListener {
+                mExpandedPosition = if (isExpanded) -1 else position
+                notifyItemChanged(mPreExpandedPosition)
+                notifyItemChanged(position)
+                // TODO change icon
+            }
+
             val word = mWords[position]
             holder?.mTextViewTitle?.text = word.title
-            // TODO
-            if (word.definitions.isNotEmpty()) {
-                holder?.mTextViewDef?.text = word.definitions[0].def
-            }
-            holder?.mTextViewExample?.text = word.examples[0]
         }
 
         fun getData(): List<Word> {
@@ -187,8 +200,9 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         class ViewHolder(mItemView: View,
                          val mTextViewTitle: TextView,
-                         val mTextViewDef: TextView,
-                         val mTextViewExample: TextView) : RecyclerView.ViewHolder(mItemView)
+                         val mFrameLayoutClickToExpand: ContentFrameLayout,
+                         val mTextViewExpand: TextView) : RecyclerView.ViewHolder(mItemView)
+
 
     }
 
