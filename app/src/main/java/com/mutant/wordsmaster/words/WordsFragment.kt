@@ -77,7 +77,6 @@ class WordsFragment : Fragment(), WordsContract.View {
     override fun onResume() {
         super.onResume()
         mPresenter?.start()
-
     }
 
     override fun setPresent(presenter: WordsContract.Presenter) {
@@ -250,8 +249,6 @@ class WordsFragment : Fragment(), WordsContract.View {
                                val mImagerViewExpand: ImageView,
                                val mLinearLayoutDef: LinearLayoutCompat) :
                 RecyclerView.ViewHolder(mItemView)
-
-
     }
 
 }

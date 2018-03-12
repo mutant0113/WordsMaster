@@ -19,7 +19,7 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_search_word, container, false)
-        root.button_search.setOnClickListener(mSearchListener)
+        root.image_view_search.setOnClickListener(mSearchListener)
         root.button_custom.setOnClickListener(mCustomListener)
         return root
     }
@@ -63,13 +63,13 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
     }
 
     override fun setSearchButtonEnabled(enabled: Boolean) {
-        button_search.isEnabled = enabled
+        image_view_search.isEnabled = enabled
     }
 
     override fun showSearching() {
         setLoadingIndicator(true)
         setSearchButtonEnabled(false)
-        text_view_no_such_word_warning.visibility = View.INVISIBLE
+        text_view_no_such_word_warning.visibility = View.GONE
     }
 
     companion object {
