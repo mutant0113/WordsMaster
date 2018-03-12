@@ -17,7 +17,9 @@
 package com.mutant.wordsmaster.data.source.local
 
 import android.arch.persistence.room.*
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
+
+
 
 /**
  * Data Access Object for the words table.
@@ -30,8 +32,8 @@ interface WordsDao {
      *
      * @return all words.
      */
-    @get:Query("SELECT * FROM Words")
-    val words: List<Word>
+    @get:Query("SELECT * FROM Words ORDER BY ROWID DESC")
+    val words: MutableList<Word>
 
     /**
      * Select a word by id.
@@ -57,7 +59,7 @@ interface WordsDao {
      * @return the number of words updated. This should always be 1.
      */
     @Update
-    fun updateWord(word: Word): Int
+    fun updateWords(vararg words: Word): Int
 
     /**
      * Delete a word by id.

@@ -8,10 +8,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
-import com.mutant.wordsmaster.data.Word
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.data.source.WordsRepository
+import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.services.JsoupHelper
 import com.mutant.wordsmaster.util.trace.DebugHelper
 
@@ -42,25 +43,25 @@ class AddEditWordPresenter(private val mWordId: String?,
         return mWordId == null
     }
 
-    override fun saveWord(title: String, explanation: String?, eg: String?) {
+    override fun saveWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
         if (isEditMode()) {
-            createNewWord(title, explanation, eg)
+            createNewWord(title, definitions, examples)
         } else {
-            updateWord(title, explanation, eg)
+            updateWord(title, definitions, examples)
         }
     }
 
-    private fun createNewWord(title: String, explanation: String?, eg: String?) {
-        val word = Word(title, explanation, eg)
+    private fun createNewWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
+        val word = Word(title, definitions, examples)
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
         } else {
-            mWordsRepository?.saveWord(word)
+            mWordsRepository.saveWord(word)
             mAddEditWordView.showWordsList()
         }
     }
 
-    private fun updateWord(title: String, explanation: String?, eg: String?) {
+    private fun updateWord(title: String, definitions: List<Definition>?, examples: MutableList<String>) {
         // TODO
     }
 
@@ -71,8 +72,8 @@ class AddEditWordPresenter(private val mWordId: String?,
     override fun onWordLoaded(word: Word) {
         if (!mAddEditWordView.isActive()) return
         mAddEditWordView.setTitle(word.title)
-        mAddEditWordView.setExplanation(word.explanation)
-        mAddEditWordView.setEg(word.eg)
+        mAddEditWordView.setDefinition(word.definitions)
+        mAddEditWordView.setExample(word.examples)
         mIsDataMissing = false
     }
 
@@ -101,7 +102,7 @@ class AddEditWordPresenter(private val mWordId: String?,
     private val mWebViewClient = object : WebViewClient() {
 
         override fun onPageFinished(view: WebView, url: String) {
-            if(!misWebViewLoaded) {
+            if (!misWebViewLoaded) {
                 view.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
                 misWebViewLoaded = true
             }
@@ -124,7 +125,7 @@ class AddEditWordPresenter(private val mWordId: String?,
 
                 override fun onDataNotAvailable() {
                     DebugHelper.e(TAG, "processHTML: html parse to word failed.")
-                    if(mSearchWordView.isActive())
+                    if (mSearchWordView.isActive())
                         mSearchWordView.showNoSuchWordError()
                 }
 
@@ -133,10 +134,10 @@ class AddEditWordPresenter(private val mWordId: String?,
     }
 
     private fun setWordToView(word: Word) {
-        if(!mSearchWordView.isActive()) return
-        if(!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
-        if(!word.explanation.isNullOrBlank()) mAddEditWordView.setExplanation(word.explanation)
-        if(!word.eg.isNullOrBlank()) mAddEditWordView.setEg(word.eg)
+        if (!mSearchWordView.isActive()) return
+        if (!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
+        mAddEditWordView.setDefinition(word.definitions)
+        mAddEditWordView.setExample(word.examples)
         mSearchWordView.showWord()
     }
 
@@ -152,7 +153,7 @@ class AddEditWordPresenter(private val mWordId: String?,
 //
 //            val translation = translate.translate(sourceText, sourceLanguageOption, targetTranslateOption, model)
 //            translation.
-//                mAddEditWordView.setExplanation(translation.translatedText)
+//                mAddEditWordView.setDefinition(translation.translatedText)
 //            }
 //        }).start()
     }

@@ -1,6 +1,6 @@
 package com.mutant.wordsmaster.words
 
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.BasePresenter
 import com.mutant.wordsmaster.util.BaseView
 
@@ -10,7 +10,7 @@ interface WordsContract {
 
         fun setLoadingIndicator(active: Boolean)
 
-        fun showWords(words: List<Word>)
+        fun showWords(words: MutableList<Word>)
 
         fun showAddWord()
 
@@ -32,6 +32,8 @@ interface WordsContract {
         fun addNewWord()
 
         fun deleteWord(wordId: String)
+
+        fun swap(word1: Word, word2: Word)
     }
 
     // TODO

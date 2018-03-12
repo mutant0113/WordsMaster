@@ -4,49 +4,78 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
-import android.text.Editable
-import android.text.TextWatcher
+import android.support.v4.widget.NestedScrollView
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
+import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.util.Tts
+import com.mutant.wordsmaster.util.ui.ItemListener
+import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.fragment_addword.*
 import kotlinx.android.synthetic.main.fragment_addword.view.*
+import kotlinx.android.synthetic.main.item_def.view.*
+import kotlinx.android.synthetic.main.item_examples.view.*
+import java.util.*
 
 
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     private var mPresenter: AddEditWordContract.Present? = null
+    private var mDefinitions = mutableListOf<Definition>()
+    private lateinit var mExampleAdapter: ExamplesAdapter
+    private var mTts: Tts? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
+        mTts = Tts.newInstance(context.applicationContext)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val root = inflater.inflate(R.layout.fragment_addword, container, false)
+        (activity as AddEditWordActivity).setSupportActionBar(toolbar)
+
         root.fab_edit_word_done.setOnClickListener {
-            mPresenter?.saveWord(edit_text_title.text.toString(),
-                    edit_text_explanation.text.toString(), edit_text_eg.text.toString())
+            mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
+                    mDefinitions, mExampleAdapter.getData())
         }
-        root.edit_text_title.addTextChangedListener(mTitleTextWatcher)
+
+        val recyclerViewExample = root.recycler_view_example
+        recyclerViewExample.layoutManager = LinearLayoutManager(activity)
+        recyclerViewExample.adapter = mExampleAdapter
+        val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
+        itemTouchHelper.attachToRecyclerView(recyclerViewExample)
+
+        root.fab_pron.setOnClickListener({
+            mTts?.speak(toolbar.title)
+        })
+
+        root.scroll_view.setOnScrollChangeListener(
+                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+            if (scrollY > oldScrollY) {
+                root.fab_edit_word_done.hide()
+            } else {
+                root.fab_edit_word_done.show()
+            }
+        })
         return root
-    }
-
-    private val mTitleTextWatcher = object : TextWatcher {
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            // TODO use button instead of translating immediately
-            mPresenter?.translate(activity, s.toString())
-        }
-
     }
 
     override fun onResume() {
         super.onResume()
         mPresenter?.start()
+    }
+
+    override fun onDestroy() {
+        mTts?.release()
+        super.onDestroy()
     }
 
     companion object {
@@ -62,7 +91,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun showEmptyWordError() {
-        Snackbar.make(edit_text_title, getString(R.string.empty_word_message), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(collapsing_toolbar_layout, getString(R.string.empty_word_message), Snackbar.LENGTH_LONG).show()
     }
 
     override fun showWordsList() {
@@ -71,15 +100,81 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun setTitle(title: String) {
-        edit_text_title.setText(title)
+        toolbar.title = title
     }
 
-    override fun setExplanation(explanation: String?) {
-        edit_text_explanation.setText(explanation)
+    override fun setDefinition(definitions: MutableList<Definition>) {
+        mDefinitions = definitions
+        for (def in definitions)
+            linear_layout_def.addView(getDefView(definition = def))
     }
 
-    override fun setEg(eg: String?) {
-        edit_text_eg.setText(eg)
+    private fun getDefView(definition: Definition): View {
+        val root = this.layoutInflater.inflate(R.layout.item_def, null, false)
+        root.text_view_pos.text = definition.pos
+        root.text_view_def.text = definition.def
+        return root
+    }
+
+    private val mItemListener = object : ItemListener<String> {
+
+        override fun onItemClick(data: String) {
+            // do nothing
+        }
+
+        override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+            Collections.swap(mExampleAdapter.getData(), fromPosition, toPosition)
+            mExampleAdapter.notifyItemMoved(fromPosition, toPosition)
+            return true
+        }
+
+        override fun onItemSwipe(position: Int) {
+            mExampleAdapter.notifyItemRemoved(position)
+        }
+    }
+
+    override fun setExample(examples: MutableList<String>) {
+        mExampleAdapter.replaceData(examples)
+    }
+
+    class ExamplesAdapter(private var mExample: MutableList<String>,
+                          private val mItemListener: ItemListener<String>) :
+            RecyclerView.Adapter<ExamplesAdapter.ViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
+            val holder = ViewHolder(itemView, itemView.text_view_example)
+            itemView.setOnClickListener({
+                mItemListener.onItemClick(mExample[holder.adapterPosition])
+            })
+            return holder
+        }
+
+        fun replaceData(examples: MutableList<String>) {
+            setData(examples)
+            notifyDataSetChanged()
+        }
+
+        private fun setData(examples: MutableList<String>) {
+            mExample = examples
+        }
+
+        override fun getItemCount(): Int {
+            return mExample.size
+        }
+
+        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+            val example = mExample[position]
+            holder?.mTextViewExample?.text = example
+        }
+
+        fun getData(): MutableList<String> {
+            return mExample
+        }
+
+        class ViewHolder(mItemView: View, val mTextViewExample: TextView) :
+                RecyclerView.ViewHolder(mItemView)
+
     }
 
     override fun isActive(): Boolean {

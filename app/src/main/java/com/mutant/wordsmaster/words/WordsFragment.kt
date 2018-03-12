@@ -1,27 +1,35 @@
 package com.mutant.wordsmaster.words
 
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v7.widget.ContentFrameLayout
+import android.support.v7.widget.LinearLayoutCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.AddEditWordActivity
-import com.mutant.wordsmaster.data.Word
+import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.util.Tts
+import com.mutant.wordsmaster.util.ui.ItemListener
+import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.activity_words.*
 import kotlinx.android.synthetic.main.fragment_words.*
 import kotlinx.android.synthetic.main.fragment_words.view.*
-import kotlinx.android.synthetic.main.view_words.view.*
+import kotlinx.android.synthetic.main.item_def.view.*
+import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
+
 
 /**
  * A placeholder fragment containing a simple view.
@@ -29,7 +37,8 @@ import java.util.*
 class WordsFragment : Fragment(), WordsContract.View {
 
     private var mPresenter: WordsContract.Presenter? = null
-    private var mListAdapter: WordsAdapter? = null
+    private lateinit var mListAdapter: WordsAdapter
+    private var mTts: Tts? = null
 
     companion object {
 
@@ -40,7 +49,8 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mListAdapter = WordsAdapter(listOf(), mItemListener)
+        mTts = Tts.newInstance(context.applicationContext)
+        mListAdapter = WordsAdapter(activity, LinkedList(), mItemListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -56,8 +66,17 @@ class WordsFragment : Fragment(), WordsContract.View {
         recyclerViewWords.adapter = mListAdapter
         val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
         itemTouchHelper.attachToRecyclerView(recyclerViewWords)
+
+        recyclerViewWords.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                if (dy > 0) fab.hide()
+                else fab.show()
+                super.onScrolled(recyclerView, dx, dy)
+            }
+        })
         return root
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         mPresenter?.result(requestCode, resultCode)
@@ -81,85 +100,42 @@ class WordsFragment : Fragment(), WordsContract.View {
     /**
      * Show all words in the CardView.
      */
-    override fun showWords(words: List<Word>) {
-        mListAdapter?.replaceData(words)
+    override fun showWords(words: MutableList<Word>) {
+        mListAdapter.replaceData(words)
 
         view?.recycler_view_words?.visibility = View.VISIBLE
         view?.linearLayout_no_words?.visibility = View.GONE
     }
 
+    // TODO logical should move to presenter
     /**
      * Listener for clicks and swipes on words in the ListView.
      */
-    private val mItemListener = object : WordsItemListener {
+    private val mItemListener = object : ItemListener<Word> {
 
-        override fun onItemClick(clickedWord: Word) {
+        override fun onItemClick(data: Word) {
             val intent = Intent(context, AddEditWordActivity::class.java)
             // TODO
 //            startActivity(intent)
         }
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-            Collections.swap(mListAdapter?.getData(), fromPosition, toPosition)
-            mListAdapter?.notifyItemMoved(fromPosition, toPosition)
+            val words = mListAdapter.getData()
+            val word1 = words[fromPosition]
+            val word2 = words[toPosition]
+            mPresenter?.swap(word1 = word1, word2 = word2)
+            Collections.swap(words, fromPosition, toPosition)
+
+            // Need to swap id otherwise, update db will go wrong.
+            word1.id = word2.id.also { word2.id = word1.id }
+            mListAdapter.notifyItemMoved(fromPosition, toPosition)
             return true
         }
 
         override fun onItemSwipe(position: Int) {
-            mPresenter?.deleteWord(mListAdapter?.getData()!![position].id)
-            mListAdapter?.notifyItemRemoved(position)
-        }
-    }
-
-    private class ItemTouchHelperCallback(private val mItemListener: WordsItemListener) :
-            ItemTouchHelper.Callback() {
-
-        override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
-            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-            val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-            return makeMovementFlags(dragFlags, swipeFlags)
-        }
-
-        override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder,
-                            target: RecyclerView.ViewHolder): Boolean {
-            return mItemListener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            mItemListener.onItemSwipe(viewHolder.adapterPosition)
-        }
-
-        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-            super.onSelectedChanged(viewHolder, actionState)
-            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                viewHolder?.itemView?.alpha = 0.7f
-                viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
-            }
-        }
-
-        override fun clearView(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {
-            super.clearView(recyclerView, viewHolder)
-            clearHighlight(viewHolder)
-        }
-
-        override fun onChildDraw(c: Canvas?, recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                val width: Int? = viewHolder?.itemView?.width
-                val alpha = if (width != null) 1 - Math.abs(dX) / width else 1f
-
-                viewHolder?.itemView?.alpha = alpha
-                // Set background color to white when dx is 0 which means not to swipe
-                if (dX == 0f) viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
-                else viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
-            } else if (actionState == ItemTouchHelper.ANIMATION_TYPE_SWIPE_CANCEL) {
-                clearHighlight(viewHolder)
-            }
-        }
-
-        fun clearHighlight(viewHolder: RecyclerView.ViewHolder?) {
-            viewHolder?.itemView?.alpha = 1.0f
-            viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
+            mPresenter?.deleteWord(mListAdapter.getData()[position].id)
+            mListAdapter.getData().removeAt(position)
+            mListAdapter.notifyItemRemoved(position)
         }
 
     }
@@ -194,28 +170,50 @@ class WordsFragment : Fragment(), WordsContract.View {
         return isAdded
     }
 
-    class WordsAdapter(private var mWords: List<Word>,
-                       private val mWordsItemListener: WordsItemListener) : RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
+    override fun onDestroy() {
+        mTts?.release()
+        super.onDestroy()
+    }
+
+    inner class WordsAdapter(private val mActivity: Activity,
+                       private var mWords: MutableList<Word>,
+                       private val mItemListener: ItemListener<Word>) :
+            RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
+
+        private var mExpandedPosition = -1
+        private var mPreExpandedPosition = -1
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.view_words, parent, false)
-            val params = itemView.layoutParams
-//            params.width = ViewGroup.LayoutParams.MATCH_PARENT
-//            params.height = 400
-            itemView.layoutParams = params
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.text_view_explanation, itemView.text_view_eg)
+            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
+            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.image_view_pron,
+                    itemView.frame_layout_click_to_expand, itemView.image_view_expand,
+                    itemView.linear_layout_card_def)
             itemView.setOnClickListener({
-                mWordsItemListener.onItemClick(mWords[holder.adapterPosition])
+                mItemListener.onItemClick(mWords[holder.adapterPosition])
             })
+
+            holder.mFrameLayoutClickToExpand.setOnClickListener {
+                val position = holder.adapterPosition
+                val isExpanded = position == mExpandedPosition
+
+                mExpandedPosition = if (isExpanded) -1 else position
+                notifyItemChanged(mPreExpandedPosition)
+                notifyItemChanged(position)
+            }
+
+            holder.mImageViewPron.setOnClickListener({
+                mTts?.speak(holder.mTextViewTitle.text)
+            })
+
             return holder
         }
 
-        fun replaceData(words: List<Word>) {
+        fun replaceData(words: MutableList<Word>) {
             setList(words)
             notifyDataSetChanged()
         }
 
-        private fun setList(words: List<Word>) {
+        private fun setList(words: MutableList<Word>) {
             mWords = words
         }
 
@@ -223,31 +221,54 @@ class WordsFragment : Fragment(), WordsContract.View {
             return mWords.size
         }
 
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            val isExpanded = position == mExpandedPosition
+            holder.mLinearLayoutDef.visibility = if (isExpanded) View.VISIBLE else View.GONE
+            holder.itemView.isActivated = isExpanded
+
+            if (isExpanded) {
+                mPreExpandedPosition = position
+                holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_less_white_24px)
+            } else {
+                holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_more_white_24px)
+            }
+
             val word = mWords[position]
-            holder?.mTextViewTitle?.text = word.title
-            holder?.mTextViewExplanation?.text = word.explanation
-            holder?.mTextViewEg?.text = word.eg
+            setTitle(holder, word.title)
+            setDefinition(holder, word.definitions)
         }
 
-        fun getData(): List<Word> {
+        private fun setTitle(holder: ViewHolder, title: String) {
+            holder.mTextViewTitle.text = title
+        }
+
+        // TODO maybe reduce code
+        private fun setDefinition(holder: ViewHolder, definitions: List<Definition>) {
+            holder.mLinearLayoutDef.removeAllViews()
+            for (def in definitions)
+                holder.mLinearLayoutDef.addView(getDefView(definition = def))
+        }
+
+        private fun getDefView(definition: Definition): View {
+            val root = mActivity.layoutInflater.inflate(R.layout.item_def, null, false)
+            root.text_view_pos.text = definition.pos
+            root.text_view_def.text = definition.def
+            return root
+        }
+
+        fun getData(): MutableList<Word> {
             return mWords
         }
 
-        class ViewHolder(mItemView: View,
-                         val mTextViewTitle: TextView,
-                         val mTextViewExplanation: TextView,
-                         val mTextViewEg: TextView) : RecyclerView.ViewHolder(mItemView)
+        inner class ViewHolder(mItemView: View,
+                               val mTextViewTitle: TextView,
+                               val mImageViewPron: ImageView,
+                               val mFrameLayoutClickToExpand: ContentFrameLayout,
+                               val mImagerViewExpand: ImageView,
+                               val mLinearLayoutDef: LinearLayoutCompat) :
+                RecyclerView.ViewHolder(mItemView)
 
-    }
 
-    interface WordsItemListener {
-
-        fun onItemClick(clickedWord: Word)
-
-        fun onItemMove(fromPosition: Int, toPosition: Int): Boolean
-
-        fun onItemSwipe(position: Int)
     }
 
 }
