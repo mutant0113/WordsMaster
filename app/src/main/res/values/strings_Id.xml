@@ -1,3 +1,10 @@
 <resources>
-    <string name="ADMOB_APP_ID">ca-app-pub-5321857149407749~3490167347</string>
+    <!--<string name="ADMOB_APP_ID">ca-app-pub-5321857149407749~3490167347</string>-->
+    <string name="ADMOB_APP_ID">ca-app-pub-3940256099942544~3347511713</string>
+
+    <!--<string name="ADMOB_CARD_VIEW_BANNER">ca-app-pub-5321857149407749/6201334438</string>-->
+    <string name="ADMOB_CARD_VIEW_BANNER">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!--<string name="ADMOB_SEARCH_INTERSTITIAL">ca-app-pub-5321857149407749/6169135726</string>-->
+    <string name="ADMOB_SEARCH_INTERSTITIAL">ca-app-pub-3940256099942544/1033173712</string>
 </resources>

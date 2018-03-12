@@ -12,10 +12,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.InterstitialAd
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.util.Tts
+import com.mutant.wordsmaster.util.trace.DebugHelper
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.fragment_addword.*
@@ -32,10 +36,20 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     private lateinit var mExampleAdapter: ExamplesAdapter
     private var mTts: Tts? = null
 
+    private lateinit var mInterstitialAd: InterstitialAd
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        initAd()
         mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
         mTts = Tts.newInstance(context.applicationContext)
+    }
+
+    private fun initAd() {
+        mInterstitialAd = InterstitialAd(context)
+        mInterstitialAd.adUnitId = getString(R.string.ADMOB_SEARCH_INTERSTITIAL)
+        mInterstitialAd.loadAd(AdRequest.Builder().build())
+        mInterstitialAd.adListener = mAdListener
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -43,8 +57,11 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         (activity as AddEditWordActivity).setSupportActionBar(toolbar)
 
         root.fab_edit_word_done.setOnClickListener {
-            mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
-                    mDefinitions, mExampleAdapter.getData())
+            if (mInterstitialAd.isLoaded) {
+                mInterstitialAd.show()
+            } else {
+                DebugHelper.d(TAG, "The interstitial wasn't loaded yet.")
+            }
         }
 
         val recyclerViewExample = root.recycler_view_example
@@ -59,13 +76,36 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
         root.scroll_view.setOnScrollChangeListener(
                 NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-            if (scrollY > oldScrollY) {
-                root.fab_edit_word_done.hide()
-            } else {
-                root.fab_edit_word_done.show()
-            }
-        })
+                    if (scrollY > oldScrollY) {
+                        root.fab_edit_word_done.hide()
+                    } else {
+                        root.fab_edit_word_done.show()
+                    }
+                })
         return root
+    }
+
+    private val mAdListener = object: AdListener() {
+        override fun onAdLoaded() {
+            // Code to be executed when an ad finishes loading.
+        }
+
+        override fun onAdFailedToLoad(errorCode: Int) {
+            // Code to be executed when an ad request fails.
+        }
+
+        override fun onAdOpened() {
+            // Code to be executed when the ad is displayed.
+        }
+
+        override fun onAdLeftApplication() {
+            // Code to be executed when the user has left the app.
+        }
+
+        override fun onAdClosed() {
+            mPresenter?.saveWord(collapsing_toolbar_layout.title.toString(),
+                    mDefinitions, mExampleAdapter.getData())
+        }
     }
 
     override fun onResume() {
@@ -79,6 +119,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     companion object {
+        private val TAG = AddEditWordFragment::class.java.simpleName
         const val ARGUMENT_EDIT_WORD_ID = "EDIT_WORD_ID"
 
         fun newInstance(): AddEditWordFragment {
@@ -180,4 +221,5 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     override fun isActive(): Boolean {
         return isAdded
     }
+
 }
