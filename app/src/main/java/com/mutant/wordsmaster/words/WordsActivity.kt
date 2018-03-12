@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.google.android.gms.ads.MobileAds
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.util.ActivityUtils
 import com.mutant.wordsmaster.util.Injection
@@ -20,6 +21,8 @@ class WordsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_words)
 //        setSupportActionBar(toolbar)
+
+        MobileAds.initialize(this, getString(R.string.ADMOB_APP_ID))
 
         var wordsFragment = supportFragmentManager.findFragmentById(R.id.content_main) as WordsFragment?
         if (wordsFragment == null) {
