@@ -10,6 +10,7 @@ import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.gms.ads.AdListener
@@ -27,6 +28,7 @@ import kotlinx.android.synthetic.main.fragment_addword.*
 import kotlinx.android.synthetic.main.fragment_addword.view.*
 import kotlinx.android.synthetic.main.item_def.view.*
 import kotlinx.android.synthetic.main.item_examples.view.*
+import kotlinx.android.synthetic.main.item_examples_header.view.*
 import java.util.*
 
 
@@ -75,6 +77,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         root.collapsing_toolbar_layout.setOnClickListener({ mTts?.speak(toolbar.title) })
 
         root.fab_edit.setOnClickListener({ setEditMode(true) })
+
 
 //        root.scroll_view.setOnScrollChangeListener(
 //                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
@@ -208,7 +211,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
             Collections.swap(mExampleAdapter.getData(), fromPosition, toPosition)
-            mExampleAdapter.notifyItemMoved(fromPosition, toPosition)
+            mExampleAdapter.notifyDataSetChanged()
             return true
         }
 
@@ -222,18 +225,52 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         mExampleAdapter.replaceData(examples)
     }
 
-    inner class ExamplesAdapter(private var mExample: MutableList<String>,
-                          private val mItemListener: ItemListener<String>) :
-            RecyclerView.Adapter<ExamplesAdapter.ViewHolder>() {
+    inner class ExamplesAdapter(private var mExamples: MutableList<String>,
+                                private val mItemListener: ItemListener<String>) :
+            RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
-            val holder = ViewHolder(itemView, itemView.image_view_vert, itemView.text_view_index,
-                    itemView.text_view_example)
+        private val HEADER = 1
+        private val LIST = 2
+
+        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
+            return when (viewType) {
+                HEADER -> getHeaderHolder(parent)
+                else -> getListHolder(parent)
+            }
+        }
+
+        private fun getHeaderHolder(parent: ViewGroup?): ViewHolderHeader {
+            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples_header, parent, false)
+            val holder = ViewHolderHeader(itemView, itemView.image_view_add, itemView.edit_text_example)
             itemView.setOnClickListener({
-                mItemListener.onItemClick(mExample[holder.adapterPosition])
+                val example = holder.mEditTextExample.text.toString()
+                if(!example.isBlank()) {
+                    mExamples.add(0, example)
+                    holder.mEditTextExample.text.clear()
+                    notifyItemInserted(0)
+                }
             })
             return holder
+        }
+
+        private fun getListHolder(parent: ViewGroup?): ViewHolderList {
+            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
+            val holder = ViewHolderList(itemView, itemView.image_view_vert, itemView.text_view_index,
+                    itemView.text_view_example)
+            itemView.setOnClickListener({
+                mItemListener.onItemClick(mExamples[holder.adapterPosition])
+            })
+            return holder
+        }
+
+        override fun getItemViewType(position: Int): Int {
+            return if (mIsEditMode) {
+                when (position) {
+                    0 -> HEADER
+                    else -> LIST
+                }
+            } else LIST
+
         }
 
         fun replaceData(examples: MutableList<String>) {
@@ -242,23 +279,27 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
 
         private fun setData(examples: MutableList<String>) {
-            mExample = examples
+            mExamples = examples
         }
 
         override fun getItemCount(): Int {
-            return mExample.size
+            return if (mIsEditMode) mExamples.size + 1 else mExamples.size
         }
 
-        override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-            val example = mExample[position]
-            holder?.mTextViewExample?.text = example
-            holder?.mImageViewVert?.visibility = if (mIsEditMode) View.VISIBLE else View.GONE
-            holder?.mTextViewIndex?.visibility = if (mIsEditMode) View.GONE else View.VISIBLE
-            holder?.mTextViewIndex?.text = position.toString()
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+            if (holder is ViewHolderList) {
+                // Item count will be increased by 1 if in edit mode
+                val adjustPosition = if(mIsEditMode) position - 1 else position
+                val example = mExamples[adjustPosition]
+                holder.mTextViewExample.text = example
+                holder.mImageViewVert.visibility = if (mIsEditMode) View.VISIBLE else View.GONE
+                holder.mTextViewIndex.visibility = if (mIsEditMode) View.GONE else View.VISIBLE
+                holder.mTextViewIndex.text = position.toString()
+            }
         }
 
         fun getData(): MutableList<String> {
-            return mExample
+            return mExamples
         }
 
         fun setEditMode(isEditMode: Boolean) {
@@ -266,10 +307,14 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             notifyDataSetChanged()
         }
 
-        inner class ViewHolder(mItemView: View, val mImageViewVert: ImageView, val mTextViewIndex: TextView,
-                         val mTextViewExample: TextView) :
-                RecyclerView.ViewHolder(mItemView)
+        inner class ViewHolderList(mItemView: View,
+                                   val mImageViewVert: ImageView,
+                                   val mTextViewIndex: TextView,
+                                   val mTextViewExample: TextView) : RecyclerView.ViewHolder(mItemView)
 
+        inner class ViewHolderHeader(mItemView: View,
+                                     val mImageViewAdd: ImageView,
+                                     val mEditTextExample: EditText) : RecyclerView.ViewHolder(mItemView)
     }
 
     override fun isActive(): Boolean {
