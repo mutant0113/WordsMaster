@@ -46,21 +46,12 @@
                 android:layout_marginTop="8dp"
                 android:ellipsize="end"
                 android:hint="Title"
-                android:textColor="@android:color/white"
                 android:textSize="32dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/image_view_pron"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <!--<android.support.v7.widget.AppCompatTextView-->
-            <!--android:id="@+id/text_view_explanation"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_marginTop="8dp"-->
-            <!--android:ellipsize="end"-->
-            <!--android:hint="Explanation" />-->
 
         </android.support.constraint.ConstraintLayout>
 

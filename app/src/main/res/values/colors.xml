@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#4db6ac</color>
+    <color name="colorPrimaryDark">#00867d</color>
+    <color name="colorPrimaryLight">#82e9de</color>
+    <color name="colorPrimaryText">#e0f2f1</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorSecondary">#ffb74d</color>
+    <color name="colorSecondaryLight">#ffe97d</color>
+    <color name="colorSecondaryDark">#c88719</color>
+    <color name="colorSecondaryText">#4e342e</color>
 
     <drawable name="completedTaskBackground">#CCCCCC</drawable>
     <drawable name="touchFeedback">#CFD8DC</drawable>
 
-    <color name="card_background">#118C4E</color>
-    <color name="card_def">#C1E1A6</color>
+    <color name="card_background">@color/colorPrimary</color>
+    <color name="card_def">@color/colorPrimaryDark</color>
+
 </resources>
