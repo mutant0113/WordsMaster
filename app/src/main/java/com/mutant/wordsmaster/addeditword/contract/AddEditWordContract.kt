@@ -20,6 +20,8 @@ interface AddEditWordContract {
 
         fun isActive(): Boolean
 
+        fun isEditMode(): Boolean
+
     }
 
     interface Present : BasePresenter {

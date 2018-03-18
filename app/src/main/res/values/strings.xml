@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">WordsMaster</string>
+    <string name="cancel">cancel</string>
+    <string name="confirm">confirm</string>
+
     <string name="add_word">New word!!</string>
     <string name="edit_word">Edit word</string>
     <string name="empty_word_message">Word\'s title cannot be empty</string>

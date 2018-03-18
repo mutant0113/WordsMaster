@@ -37,6 +37,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     private lateinit var mExampleAdapter: ExamplesAdapter
     private var mTts: Tts? = null
     private lateinit var mWordId: String
+    private var mIsEditMode = false
 
     private lateinit var mInterstitialAd: InterstitialAd
 
@@ -179,6 +180,10 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
     }
 
+    override fun isEditMode(): Boolean {
+        return mIsEditMode
+    }
+
     private fun setItemTouchHelper(isEditMode: Boolean) {
         val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
         if (isEditMode) {
@@ -217,11 +222,9 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         mExampleAdapter.replaceData(examples)
     }
 
-    class ExamplesAdapter(private var mExample: MutableList<String>,
+    inner class ExamplesAdapter(private var mExample: MutableList<String>,
                           private val mItemListener: ItemListener<String>) :
             RecyclerView.Adapter<ExamplesAdapter.ViewHolder>() {
-
-        private var mIsEditMode = false
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
@@ -263,7 +266,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             notifyDataSetChanged()
         }
 
-        class ViewHolder(mItemView: View, val mImageViewVert: ImageView, val mTextViewIndex: TextView,
+        inner class ViewHolder(mItemView: View, val mImageViewVert: ImageView, val mTextViewIndex: TextView,
                          val mTextViewExample: TextView) :
                 RecyclerView.ViewHolder(mItemView)
 

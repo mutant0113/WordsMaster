@@ -1,11 +1,13 @@
 package com.mutant.wordsmaster.addeditword
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.util.ActivityUtils
+import com.mutant.wordsmaster.util.DialogUnits
 import com.mutant.wordsmaster.util.Injection
 
 class AddEditWordActivity : AppCompatActivity() {
@@ -64,6 +66,18 @@ class AddEditWordActivity : AppCompatActivity() {
     fun showWord(isEditMode: Boolean) {
         mAddEditWordFragment.setEditMode(isEditMode)
         ActivityUtils.switchFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
+    }
+
+    override fun onBackPressed() {
+        if (mAddEditWordFragment.isEditMode()) {
+            DialogUnits.createDialog(this, "Changes not save",
+                    "Are you sure to leave without saving?",
+                    DialogInterface.OnClickListener { dialog, _ -> dialog.dismiss() },
+                    DialogInterface.OnClickListener { _, _ -> super.onBackPressed() }).show()
+        } else {
+            super.onBackPressed()
+        }
+
     }
 
 }
