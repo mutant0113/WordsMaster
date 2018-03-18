@@ -5,7 +5,7 @@ import com.mutant.wordsmaster.data.source.model.Word
 interface WordsLocalContract {
 
     interface LoadWordsCallback {
-        fun onWordsLoaded(words: List<Word>)
+        fun onWordsLoaded(words: MutableList<Word>)
         fun onDataNotAvailable()
     }
 
@@ -21,6 +21,6 @@ interface WordsLocalContract {
     fun saveWord(word: Word)
     fun deleteWord(wordId: String)
     fun deleteAllWords()
-    fun swapPosition(wordId1: String, wordId2: String)
+    fun swap(word1: Word, word2: Word)
     fun refreshWords()
 }

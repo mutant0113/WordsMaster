@@ -20,6 +20,7 @@ import android.support.annotation.VisibleForTesting
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.AppExecutors
+import com.mutant.wordsmaster.util.trace.DebugHelper
 
 
 /**
@@ -75,18 +76,22 @@ private constructor(private val mAppExecutors: AppExecutors,
 
     override fun deleteAllWords() {
         val deleteRunnable = Runnable { mWordsDao.deleteWords() }
-
         mAppExecutors.diskIO().execute(deleteRunnable)
     }
 
     override fun deleteWord(wordId: String) {
         val deleteRunnable = Runnable { mWordsDao.deleteWordById(wordId) }
-
         mAppExecutors.diskIO().execute(deleteRunnable)
     }
 
-    override fun swapPosition(wordId1: String, wordId2: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun swap(word1: Word, word2: Word) {
+        val updateWord1 = word1.copy(id = word2.id)
+        val updateWord2 = word2.copy(id = word1.id)
+        val updateRunnable = Runnable {
+            DebugHelper.d("mutant0113", "swap, ${updateWord1.title}, ${updateWord2.title}")
+            mWordsDao.updateWords(updateWord1, updateWord2)
+        }
+        mAppExecutors.diskIO().execute(updateRunnable)
     }
 
     companion object {
