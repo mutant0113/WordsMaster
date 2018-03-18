@@ -6,19 +6,77 @@
     android:layout_height="match_parent"
     tools:context="com.mutant.wordsmaster.words.WordsFragment">
 
-    <android.support.v7.widget.AppCompatEditText
-        android:id="@+id/edit_text_word"
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:hint="Search New Word"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_margin="8dp"
+        app:cardCornerRadius="4dp">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/constraint_layout_top"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:animateLayoutChanges="true"
+                android:background="@color/card_background"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/edit_text_word"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:hint="Search New Word"
+                    android:textColor="@android:color/white"
+                    android:textSize="32dp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/image_view_search"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/image_view_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity=""
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginTop="8dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_search_white_36px"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <android.support.v7.widget.AppCompatTextView
+                    android:id="@+id/text_view_no_such_word_warning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="No such word, maybe search again?"
+                    android:textColor="@android:color/holo_red_light"
+                    android:textSize="18dp"
+                    android:visibility="invisible"
+                    app:layout_constraintStart_toStartOf="@+id/edit_text_word"
+                    app:layout_constraintTop_toBottomOf="@+id/edit_text_word" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v7.widget.CardView>
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -30,19 +88,7 @@
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_word" />
-
-    <android.support.v7.widget.AppCompatTextView
-        android:id="@+id/text_view_no_such_word_warning"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="No such word, maybe search again?"
-        android:textColor="@android:color/holo_red_light"
-        android:textSize="18dp"
-        android:visibility="invisible"
-        app:layout_constraintStart_toStartOf="@+id/edit_text_word"
-        app:layout_constraintTop_toBottomOf="@+id/edit_text_word" />
+        app:layout_constraintTop_toBottomOf="@+id/card_view" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -54,16 +100,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
-        <android.support.v7.widget.AppCompatButton
-            android:id="@+id/button_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:text="Search" />
 
         <Button
             android:id="@+id/button_custom"
