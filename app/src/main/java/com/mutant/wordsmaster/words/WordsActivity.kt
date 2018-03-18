@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.util.ActivityUtils
 import com.mutant.wordsmaster.util.Injection
+import kotlinx.android.synthetic.main.activity_words.*
 
 class WordsActivity : AppCompatActivity() {
 
@@ -21,15 +24,15 @@ class WordsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_words)
 //        setSupportActionBar(toolbar)
 
+        initAds()
+
         var wordsFragment = supportFragmentManager.findFragmentById(R.id.content_main) as WordsFragment?
         if (wordsFragment == null) {
-            // Create the fragment
             wordsFragment = WordsFragment.newInstance()
             ActivityUtils.addFragment(supportFragmentManager, wordsFragment,
                     R.id.content_main, TAG_FRAGMENT_WORDS)
         }
 
-        // Create the presenter
         mWordsPresent = WordsPresenter(
                 Injection.provideTasksRepository(applicationContext), wordsFragment)
 
@@ -39,6 +42,37 @@ class WordsActivity : AppCompatActivity() {
 //            val currentFiltering = savedInstanceState.getSerializable(CURRENT_FILTERING_KEY) as TasksFilterType
 //            mTasksPresenter.setFiltering(currentFiltering)
 //        }
+    }
+
+    private fun initAds() {
+        val adRequest = AdRequest.Builder().build()
+        ad_view.loadAd(adRequest)
+        ad_view.adListener = mAdListener
+    }
+
+    private val mAdListener = object: AdListener() {
+
+        override fun onAdLoaded() {
+            // Code to be executed when an ad finishes loading.
+        }
+
+        override fun onAdFailedToLoad(errorCode : Int) {
+            // Code to be executed when an ad request fails.
+        }
+
+        override fun onAdOpened() {
+            // Code to be executed when an ad opens an overlay that
+            // covers the screen.
+        }
+
+        override fun onAdLeftApplication() {
+            // Code to be executed when the user has left the app.
+        }
+
+        override fun onAdClosed() {
+            // Code to be executed when when the user is about to return
+            // to the app after tapping on an ad.
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -56,4 +90,5 @@ class WordsActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
 }

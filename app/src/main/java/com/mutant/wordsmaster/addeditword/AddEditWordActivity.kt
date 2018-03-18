@@ -1,5 +1,7 @@
 package com.mutant.wordsmaster.addeditword
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.mutant.wordsmaster.R
@@ -8,11 +10,18 @@ import com.mutant.wordsmaster.util.Injection
 
 class AddEditWordActivity : AppCompatActivity() {
 
+    private lateinit var mAddEditWordFragment: AddEditWordFragment
+
     companion object {
         const val REQUEST_ADD_TASK = 1
-        const val SHOULD_LOAD_DATA_FROM_REPO_KEY = "SHOULD_LOAD_DATA_FROM_REPO_KEY"
         const val TAG_FRAGMENT_ADDEDITWORD = "ADDEDITWORD"
         const val TAG_FRAGMENT_SEARCH_WORD = "SEARCHWORD"
+
+        fun getIntent(context: Context, wordTitle: String): Intent {
+            val intent = Intent(context, AddEditWordActivity::class.java)
+            intent.putExtra(AddEditWordFragment.ARGUMENT_WORD_TITLE, wordTitle)
+            return intent
+        }
     }
 
     private lateinit var mAddEditWordPresenter: AddEditWordPresenter
@@ -21,53 +30,39 @@ class AddEditWordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_addword)
 
+        val wordTitle = intent.getStringExtra(AddEditWordFragment.ARGUMENT_WORD_TITLE)
+
         var searchFragment = supportFragmentManager.findFragmentById(R.id.content_frame) as SearchWordFragment?
-        val wordId = intent.getStringExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)
-
         if (searchFragment == null) {
-            // Create the fragment
             searchFragment = SearchWordFragment.newInstance()
-
-            // TODO Getting data means this page is in edit mode
-            if (intent.hasExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)) {
-//                val bundle = Bundle()
-//                bundle.putString(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID, wordId)
-//                searchWordFragment.arguments = bundle
-            }
 
             ActivityUtils.addFragment(supportFragmentManager, searchFragment,
                     R.id.content_frame, TAG_FRAGMENT_SEARCH_WORD)
         }
 
-        // Create the fragment
-        val addEditWordFragment = AddEditWordFragment.newInstance()
-
-        // TODO Getting data means this page is in edit mode
-        if (intent.hasExtra(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID)) {
+        mAddEditWordFragment = AddEditWordFragment.newInstance()
+        if (wordTitle != null) {
             val bundle = Bundle()
-            bundle.putString(AddEditWordFragment.ARGUMENT_EDIT_WORD_ID, wordId)
-            addEditWordFragment.arguments = bundle
+            bundle.putString(AddEditWordFragment.ARGUMENT_WORD_TITLE, wordTitle)
+            mAddEditWordFragment.arguments = bundle
         }
+        // TODO Getting data means this page is in edit mode
 
-        ActivityUtils.addFragment(supportFragmentManager, addEditWordFragment,
+        ActivityUtils.addFragment(supportFragmentManager, mAddEditWordFragment,
                 R.id.content_frame, TAG_FRAGMENT_ADDEDITWORD)
-        ActivityUtils.hideFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
 
-        var shouldLoadDataFromRepo = true
-
-        // Prevent the presenter from loading data from the repository if this is a config change.
-        if (savedInstanceState != null) {
-            // Data might not have loaded when the config change happen, so we saved the state.
-            shouldLoadDataFromRepo = savedInstanceState.getBoolean(SHOULD_LOAD_DATA_FROM_REPO_KEY)
-        }
+        if (wordTitle.isNullOrBlank())
+            ActivityUtils.hideFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
+        else
+            ActivityUtils.hideFragment(supportFragmentManager, TAG_FRAGMENT_SEARCH_WORD)
 
         // Create the presenter
-        mAddEditWordPresenter = AddEditWordPresenter(wordId,
-                Injection.provideTasksRepository(applicationContext), addEditWordFragment,
-                searchFragment, shouldLoadDataFromRepo)
+        mAddEditWordPresenter = AddEditWordPresenter(this, wordTitle,
+                Injection.provideTasksRepository(applicationContext), mAddEditWordFragment, searchFragment)
     }
 
-    fun showWord() {
+    fun showWord(isEditMode: Boolean) {
+        mAddEditWordFragment.setEditMode(isEditMode)
         ActivityUtils.switchFragment(supportFragmentManager, TAG_FRAGMENT_ADDEDITWORD)
     }
 

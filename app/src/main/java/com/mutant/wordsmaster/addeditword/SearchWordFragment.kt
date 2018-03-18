@@ -26,10 +26,10 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
 
     private val mSearchListener = View.OnClickListener {
         val sourceText = edit_text_word.text.toString()
-        mPresenter?.parseHtmlFromWebView(activity, sourceText)
+        mPresenter?.getWordByTitle(sourceText)
     }
 
-    private val mCustomListener = View.OnClickListener { showWord() }
+    private val mCustomListener = View.OnClickListener { showWord(true) }
 
     override fun setPresent(present: AddEditWordPresenter) {
         mPresenter = present
@@ -42,11 +42,15 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
         button_custom.visibility = View.VISIBLE
     }
 
-    override fun showWord() {
+    override fun showKeyboard() {
+        Utils.showKeyBoard(activity, edit_text_word)
+    }
+
+    override fun showWord(isEditMode: Boolean) {
         setLoadingIndicator(false)
         setSearchButtonEnabled(true)
         Utils.hideKeyBoard(activity, edit_text_word)
-        (activity as AddEditWordActivity).showWord()
+        (activity as AddEditWordActivity).showWord(isEditMode)
     }
 
     override fun isActive(): Boolean {

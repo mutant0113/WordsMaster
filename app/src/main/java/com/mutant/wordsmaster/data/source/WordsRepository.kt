@@ -1,6 +1,7 @@
 package com.mutant.wordsmaster.data.source
 
 import android.arch.persistence.room.Entity
+import android.content.Context
 import com.mutant.wordsmaster.data.source.model.Word
 import java.util.*
 
@@ -40,8 +41,19 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         })
     }
 
-    override fun getWord(wordId: String, callback: WordsLocalContract.GetWordCallback) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
+        if(wordTitle.isNullOrBlank()) callback.onDataNotAvailable()
+        mWordsLocalModel.getWordByTitle(context, wordTitle, object : WordsLocalContract.GetWordCallback {
+
+            override fun onWordLoaded(word: Word, isNewWord: Boolean) {
+                callback.onWordLoaded(word, isNewWord)
+            }
+
+            override fun onDataNotAvailable() {
+                mWordsRemoteModel.getWordByTitle(context, wordTitle, callback)
+            }
+
+        })
     }
 
     private fun refreshCache(words: List<Word>) {
@@ -55,35 +67,18 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         mCacheIsDirty = true
     }
 
-    fun getWordFromLocal(wordId: String, callback: WordsLocalContract.GetWordCallback) {
-        mWordsLocalModel.getWord(wordId, object : WordsLocalContract.GetWordCallback {
-
-            override fun onWordLoaded(word: Word) {
-                callback.onWordLoaded(word)
-            }
-
-            override fun onDataNotAvailable() {
-                callback.onDataNotAvailable()
-            }
-
-        })
-    }
-
     override fun saveWord(word: Word) {
         mWordsLocalModel.saveWord(word)
-//        mWordsRemoteModel.saveWord(word)
         mCachedWords[word.id] = word
     }
 
     override fun deleteWord(wordId: String) {
         mWordsLocalModel.deleteWord(wordId)
-//        mWordsRemoteModel.deleteWord(wordId)
         mCachedWords.remove(wordId)
     }
 
     override fun deleteAllWords() {
         mWordsLocalModel.deleteAllWords()
-//        mWordsRemoteModel.deleteAllWords()
         mCachedWords.clear()
     }
 
@@ -93,10 +88,6 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
         val updateWord2 = word2.copy(id = word1.id)
         mCachedWords[updateWord1.id] = updateWord1
         mCachedWords[updateWord2.id] = updateWord2
-    }
-
-    override fun parseHtml(html: String, callback: WordsRemoteContract.GetWordCallback){
-        return mWordsRemoteModel.parseHtml(html, callback)
     }
 
     companion object {

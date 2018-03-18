@@ -22,8 +22,8 @@
         </activity>
         <activity
             android:name="com.mutant.wordsmaster.addeditword.AddEditWordActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize"
-            android:label="@string/add_word" />
+            android:label="@string/add_word"
+            android:windowSoftInputMode="adjustResize" />
 
         <meta-data
             android:name="io.fabric.ApiKey"

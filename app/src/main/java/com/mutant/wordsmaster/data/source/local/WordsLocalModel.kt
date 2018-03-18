@@ -16,6 +16,7 @@
 
 package com.mutant.wordsmaster.data.source.local
 
+import android.content.Context
 import android.support.annotation.VisibleForTesting
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.model.Word
@@ -29,6 +30,7 @@ import com.mutant.wordsmaster.util.trace.DebugHelper
 class WordsLocalModel// Prevent direct instantiation.
 private constructor(private val mAppExecutors: AppExecutors,
                     private val mWordsDao: WordsDao) : WordsLocalContract {
+
     /**
      * Note: [WordsLocalContract.LoadWordsCallback.onDataNotAvailable] is fired if the database doesn't exist
      * or the table is empty.
@@ -49,14 +51,14 @@ private constructor(private val mAppExecutors: AppExecutors,
         mAppExecutors.diskIO().execute(runnable)
     }
 
-    override fun getWord(wordId: String, callback: WordsLocalContract.GetWordCallback) {
+    override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
         val runnable = Runnable {
-            val word = mWordsDao.getWordById(wordId)
+            val word = mWordsDao.getWordByTitle(wordTitle)
             mAppExecutors.mainThread().execute({
-                if(word.isEmpty) {
+                if(word == null || word.isEmpty) {
                     callback.onDataNotAvailable()
                 } else {
-                    callback.onWordLoaded(word)
+                    callback.onWordLoaded(word, false)
                 }
             })
         }

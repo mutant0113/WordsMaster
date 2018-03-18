@@ -46,17 +46,6 @@ data class Word(
     constructor(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) :
             this(UUID.randomUUID().toString(), title, definitions, examples)
 
-    //
-//    /**
-//     * Use this constructor to create an active Task if the Task already has an id (copy of another
-//     * Task).
-//     *
-//     * @param title       title of the task
-//     * @param description description of the task
-//     * @param id          id of the task
-//     */
-//    @Ignore
-//    constructor(id: String, title: String?, description: String?) : this(id, title, description)
     @Ignore
     constructor() : this(UUID.randomUUID().toString(), "", mutableListOf<Definition>(), mutableListOf<String>())
 
