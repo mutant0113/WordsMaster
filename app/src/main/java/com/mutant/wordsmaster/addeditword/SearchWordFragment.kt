@@ -59,7 +59,7 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
 
     override fun onResume() {
         super.onResume()
-        mPresenter?.start()
+//        mPresenter?.start()
     }
 
     override fun setLoadingIndicator(active: Boolean) {
