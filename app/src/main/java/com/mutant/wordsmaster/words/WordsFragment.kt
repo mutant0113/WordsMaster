@@ -3,6 +3,7 @@ package com.mutant.wordsmaster.words
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.support.constraint.ConstraintLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
@@ -176,8 +177,8 @@ class WordsFragment : Fragment(), WordsContract.View {
     }
 
     inner class WordsAdapter(private val mActivity: Activity,
-                       private var mWords: MutableList<Word>,
-                       private val mItemListener: ItemListener<Word>) :
+                             private var mWords: MutableList<Word>,
+                             private val mItemListener: ItemListener<Word>) :
             RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
         private var mExpandedPosition = -1
@@ -185,11 +186,13 @@ class WordsFragment : Fragment(), WordsContract.View {
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
-            val holder = ViewHolder(itemView, itemView.text_view_title, itemView.image_view_pron,
-                    itemView.frame_layout_click_to_expand, itemView.image_view_expand,
+            val holder = ViewHolder(itemView, itemView.constraint_layout_top, itemView.text_view_title,
+                    itemView.image_view_pron, itemView.frame_layout_click_to_expand, itemView.image_view_expand,
                     itemView.linear_layout_card_def)
-            itemView.setOnClickListener({
-                mItemListener.onItemClick(mWords[holder.adapterPosition])
+            holder.mConstrainLayoutTop.setOnClickListener({
+                val position = holder.adapterPosition
+                val intent = AddEditWordActivity.getIntent(context, mWords[position].title)
+                context.startActivity(intent)
             })
 
             holder.mFrameLayoutClickToExpand.setOnClickListener {
@@ -261,6 +264,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         inner class ViewHolder(mItemView: View,
+                               val mConstrainLayoutTop: ConstraintLayout,
                                val mTextViewTitle: TextView,
                                val mImageViewPron: ImageView,
                                val mFrameLayoutClickToExpand: ContentFrameLayout,

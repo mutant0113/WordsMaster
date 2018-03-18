@@ -1,58 +1,46 @@
 package com.mutant.wordsmaster.addeditword
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import com.google.cloud.translate.Translate
+import com.google.cloud.translate.TranslateOptions
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
 import com.mutant.wordsmaster.data.source.WordsLocalContract
-import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.data.source.WordsRepository
-import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
-import com.mutant.wordsmaster.services.JsoupHelper
-import com.mutant.wordsmaster.util.trace.DebugHelper
 
 
-class AddEditWordPresenter(private val mWordId: String?,
+class AddEditWordPresenter(private val mContext: Context,
+                           private val mWordTitle: String?,
                            private val mWordsRepository: WordsRepository,
                            private val mAddEditWordView: AddEditWordContract.View,
-                           private val mSearchWordView: SearchWordContract.View,
-                           private val mShouldLoadDataFromRepo: Boolean) :
+                           private val mSearchWordView: SearchWordContract.View) :
         AddEditWordContract.Present, WordsLocalContract.GetWordCallback {
 
-    private var mIsDataMissing: Boolean = false
-    private var misWebViewLoaded = false
-
     init {
-        mIsDataMissing = mShouldLoadDataFromRepo
         mAddEditWordView.setPresent(this)
         mSearchWordView.setPresent(this)
     }
 
     override fun start() {
-        if (!isEditMode() && mIsDataMissing) {
+        mAddEditWordView.setEditMode(false)
+        if (!isSearching()) {
             populateWord()
-        }
-    }
-
-    private fun isEditMode(): Boolean {
-        return mWordId == null
-    }
-
-    override fun saveWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
-        if (isEditMode()) {
-            createNewWord(title, definitions, examples)
         } else {
-            updateWord(title, definitions, examples)
+            mSearchWordView.showKeyboard()
         }
     }
 
-    private fun createNewWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) {
-        val word = Word(title, definitions, examples)
+    private fun isSearching(): Boolean {
+        return mWordTitle.isNullOrBlank()
+    }
+
+    override fun saveWord(word: Word) {
+        insertOrUpdate(word)
+    }
+
+    private fun insertOrUpdate(word: Word) {
         if (word.isEmpty) {
             mAddEditWordView.showEmptyWordError()
         } else {
@@ -61,101 +49,44 @@ class AddEditWordPresenter(private val mWordId: String?,
         }
     }
 
-    private fun updateWord(title: String, definitions: List<Definition>?, examples: MutableList<String>) {
-        // TODO
-    }
-
     override fun populateWord() {
-        mWordsRepository?.getWordFromLocal(mWordId!!, this)
+        if (!mWordTitle.isNullOrBlank())
+            mWordsRepository.getWordByTitle(mContext, mWordTitle, this)
     }
 
-    override fun onWordLoaded(word: Word) {
+    override fun getWordByTitle(wordTitle: String?) {
+        mSearchWordView.showSearching()
+        mWordsRepository.getWordByTitle(mContext, wordTitle, this)
+    }
+
+    override fun onWordLoaded(word: Word, isNewWord: Boolean) {
         if (!mAddEditWordView.isActive()) return
-        mAddEditWordView.setTitle(word.title)
-        mAddEditWordView.setDefinition(word.definitions)
-        mAddEditWordView.setExample(word.examples)
-        mIsDataMissing = false
+        if (!mSearchWordView.isActive()) return
+        mAddEditWordView.setView(word)
+        mSearchWordView.showWord(isNewWord)
     }
 
     override fun onDataNotAvailable() {
+        if (!mSearchWordView.isActive()) return
+        mSearchWordView.showNoSuchWordError()
+
         if (!mAddEditWordView.isActive()) return
         mAddEditWordView.showEmptyWordError()
     }
 
-    override fun isDataMissing(): Boolean {
-        return mIsDataMissing
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    override fun parseHtmlFromWebView(context: Context, sourceText: String) {
-        mSearchWordView.showSearching()
-        misWebViewLoaded = false
-
-        val webView = WebView(context)
-        webView.settings.javaScriptEnabled = true
-        webView.addJavascriptInterface(LoadListener(), "HTMLOUT")
-        webView.webViewClient = mWebViewClient
-        // TODO srcLang and tgtLang must be parameters.
-        webView.loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
-    }
-
-    private val mWebViewClient = object : WebViewClient() {
-
-        override fun onPageFinished(view: WebView, url: String) {
-            if (!misWebViewLoaded) {
-                view.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
-                misWebViewLoaded = true
-            }
-        }
-    }
-
-    /**
-     * We execute javascript to get html after website page loading finished.
-     * Do not remove this code, it is not useless.
-     */
-    private inner class LoadListener {
-
-        @JavascriptInterface
-        fun processHTML(html: String) {
-            DebugHelper.d(TAG, "processHTML: $html")
-            mWordsRepository.parseHtml(html, object : WordsRemoteContract.GetWordCallback {
-                override fun onWordLoaded(word: Word) {
-                    setWordToView(word)
-                }
-
-                override fun onDataNotAvailable() {
-                    DebugHelper.e(TAG, "processHTML: html parse to word failed.")
-                    if (mSearchWordView.isActive())
-                        mSearchWordView.showNoSuchWordError()
-                }
-
-            })
-        }
-    }
-
-    private fun setWordToView(word: Word) {
-        if (!mSearchWordView.isActive()) return
-        if (!word.title.isNullOrBlank()) mAddEditWordView.setTitle(word.title)
-        mAddEditWordView.setDefinition(word.definitions)
-        mAddEditWordView.setExample(word.examples)
-        mSearchWordView.showWord()
-    }
-
     override fun translate(activity: Activity, sourceText: String) {
-        //        Thread(Runnable {
-//            val translate = TranslateOptions.newBuilder()
-//                    .setApiKey("AIzaSyA3NIbkZXrty6xHMPxJ27-Zr73PtTqaTlI").build().service
-//            val sourceLanguage = "en"
-//            val targetLanguage = "zh-TW"
-//            val sourceLanguageOption = Translate.TranslateOption.sourceLanguage(sourceLanguage)
-//            val targetTranslateOption = Translate.TranslateOption.targetLanguage(targetLanguage)
-//            val model = Translate.TranslateOption.model("nmt")
-//
-//            val translation = translate.translate(sourceText, sourceLanguageOption, targetTranslateOption, model)
-//            translation.
-//                mAddEditWordView.setDefinition(translation.translatedText)
-//            }
-//        }).start()
+        Thread(Runnable {
+            val translate = TranslateOptions.newBuilder()
+                    .setApiKey("AIzaSyA3NIbkZXrty6xHMPxJ27-Zr73PtTqaTlI").build().service
+            val sourceLanguage = "en"
+            val targetLanguage = "zh-TW"
+            val sourceLanguageOption = Translate.TranslateOption.sourceLanguage(sourceLanguage)
+            val targetTranslateOption = Translate.TranslateOption.targetLanguage(targetLanguage)
+            val model = Translate.TranslateOption.model("nmt")
+
+            val translation = translate.translate(sourceText, sourceLanguageOption, targetTranslateOption, model)
+        }
+        ).start()
     }
 
     companion object {

@@ -28,13 +28,11 @@ class WordsActivity : AppCompatActivity() {
 
         var wordsFragment = supportFragmentManager.findFragmentById(R.id.content_main) as WordsFragment?
         if (wordsFragment == null) {
-            // Create the fragment
             wordsFragment = WordsFragment.newInstance()
             ActivityUtils.addFragment(supportFragmentManager, wordsFragment,
                     R.id.content_main, TAG_FRAGMENT_WORDS)
         }
 
-        // Create the presenter
         mWordsPresent = WordsPresenter(
                 Injection.provideTasksRepository(applicationContext), wordsFragment)
 

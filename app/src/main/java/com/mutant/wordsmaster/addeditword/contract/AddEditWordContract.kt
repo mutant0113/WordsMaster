@@ -1,9 +1,8 @@
 package com.mutant.wordsmaster.addeditword.contract
 
 import android.app.Activity
-import android.content.Context
 import com.mutant.wordsmaster.addeditword.AddEditWordPresenter
-import com.mutant.wordsmaster.data.source.model.Definition
+import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.BasePresenter
 import com.mutant.wordsmaster.util.BaseView
 
@@ -15,11 +14,9 @@ interface AddEditWordContract {
 
         fun showWordsList()
 
-        fun setTitle(title: String)
+        fun setView(word: Word)
 
-        fun setDefinition(definitions: MutableList<Definition>)
-
-        fun setExample(examples: MutableList<String>)
+        fun setEditMode(isEditMode: Boolean)
 
         fun isActive(): Boolean
 
@@ -27,16 +24,14 @@ interface AddEditWordContract {
 
     interface Present : BasePresenter {
 
-        fun saveWord(title: String, definitions: MutableList<Definition>, examples: MutableList<String>)
+        fun saveWord(word: Word)
 
         /**
          * If it is in edition, populate TextViews with data
          */
         fun populateWord()
 
-        fun isDataMissing(): Boolean
-
-        fun parseHtmlFromWebView(context: Context, sourceText: String)
+        fun getWordByTitle(wordTitle: String?)
 
         fun translate(activity: Activity, sourceText: String)
 

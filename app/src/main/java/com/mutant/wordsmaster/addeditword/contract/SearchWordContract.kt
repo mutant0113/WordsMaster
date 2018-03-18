@@ -13,9 +13,11 @@ interface SearchWordContract {
 
         fun showNoSuchWordError()
 
-        fun showWord()
+        fun showWord(isEditMode: Boolean)
 
         fun showSearching()
+
+        fun showKeyboard()
 
         fun isActive(): Boolean
 

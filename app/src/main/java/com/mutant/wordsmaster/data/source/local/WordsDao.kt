@@ -21,6 +21,8 @@ import com.mutant.wordsmaster.data.source.model.Word
 
 
 
+
+
 /**
  * Data Access Object for the words table.
  */
@@ -36,13 +38,13 @@ interface WordsDao {
     val words: MutableList<Word>
 
     /**
-     * Select a word by id.
+     * Select a word by title.
      *
-     * @param wordId the word id.
-     * @return the word with taskId.
+     * @param wordTitle the word title.
+     * @return the word with wordId.
      */
-    @Query("SELECT * FROM words WHERE entryid = :wordId")
-    fun getWordById(wordId: String): Word
+    @Query("SELECT * FROM words WHERE title = :wordTitle")
+    fun getWordByTitle(wordTitle: String?): Word?
 
     /**
      * Insert a word in the database. If the word already exists, replace it.
