@@ -69,8 +69,6 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         val recyclerViewExample = root.recycler_view_example
         recyclerViewExample.layoutManager = LinearLayoutManager(activity)
         recyclerViewExample.adapter = mExampleAdapter
-        val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
-        itemTouchHelper.attachToRecyclerView(recyclerViewExample)
 
         root.image_view_pron_add_edit.setOnClickListener({ mTts?.speak(toolbar.title) })
         root.collapsing_toolbar_layout.setOnClickListener({ mTts?.speak(toolbar.title) })
@@ -170,6 +168,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun setEditMode(isEditMode: Boolean) {
+        setItemTouchHelper(isEditMode)
         mExampleAdapter.setEditMode(isEditMode)
         if (isEditMode) {
             fab_edit.hide()
@@ -177,6 +176,15 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         } else {
             fab_edit.show()
             fab_edit_done.hide()
+        }
+    }
+
+    private fun setItemTouchHelper(isEditMode: Boolean) {
+        val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
+        if (isEditMode) {
+            itemTouchHelper.attachToRecyclerView(recycler_view_example)
+        } else {
+            itemTouchHelper.attachToRecyclerView(null)
         }
     }
 
@@ -220,8 +228,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             val holder = ViewHolder(itemView, itemView.image_view_vert, itemView.text_view_index,
                     itemView.text_view_example)
             itemView.setOnClickListener({
-                if (mIsEditMode)
-                    mItemListener.onItemClick(mExample[holder.adapterPosition])
+                mItemListener.onItemClick(mExample[holder.adapterPosition])
             })
             return holder
         }

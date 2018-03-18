@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 
-class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T> ) :
+class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T>) :
         ItemTouchHelper.Callback() {
 
     override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
