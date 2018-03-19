@@ -29,7 +29,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <android.support.v7.widget.AppCompatEditText
+                <android.support.v7.widget.AppCompatAutoCompleteTextView
                     android:id="@+id/edit_text_word"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -37,8 +37,10 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
+                    android:completionThreshold="1"
                     android:ellipsize="end"
                     android:hint="Search New Word"
+                    android:inputType="textAutoCorrect"
                     android:textColor="@android:color/white"
                     android:textSize="32dp"
                     android:textStyle="bold"

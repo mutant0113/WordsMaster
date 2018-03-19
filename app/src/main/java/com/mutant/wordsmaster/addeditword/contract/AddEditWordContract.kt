@@ -28,8 +28,12 @@ interface AddEditWordContract {
 
         fun saveWord(word: Word)
 
+        fun saveHistory(wordTitle: String)
+
+        fun getHistory() : MutableList<String>
+
         /**
-         * If it is in edition, populate TextViews with data
+         * If it is old word, populate TextViews with local data
          */
         fun populateWord()
 

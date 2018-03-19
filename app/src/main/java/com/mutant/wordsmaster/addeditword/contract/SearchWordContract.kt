@@ -19,6 +19,8 @@ interface SearchWordContract {
 
         fun showKeyboard()
 
+        fun setHistory(wordsHistory: MutableList<String>)
+
         fun isActive(): Boolean
 
     }

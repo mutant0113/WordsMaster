@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
@@ -63,7 +64,7 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
     }
 
     override fun setLoadingIndicator(active: Boolean) {
-        progress_bar.visibility = if(active) View.VISIBLE else View.INVISIBLE
+        progress_bar.visibility = if (active) View.VISIBLE else View.INVISIBLE
     }
 
     override fun setSearchButtonEnabled(enabled: Boolean) {
@@ -74,6 +75,11 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
         setLoadingIndicator(true)
         setSearchButtonEnabled(false)
         text_view_no_such_word_warning.visibility = View.GONE
+    }
+
+    override fun setHistory(wordsHistory: MutableList<String>) {
+        val adapter = ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, wordsHistory)
+        edit_text_word.setAdapter(adapter)
     }
 
     companion object {

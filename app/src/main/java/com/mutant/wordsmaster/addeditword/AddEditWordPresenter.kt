@@ -8,6 +8,7 @@ import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.addeditword.contract.SearchWordContract
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRepository
+import com.mutant.wordsmaster.data.source.local.SettingsPreferences
 import com.mutant.wordsmaster.data.source.model.Word
 
 
@@ -30,10 +31,22 @@ class AddEditWordPresenter(private val mContext: Context,
         } else {
             mSearchWordView.showKeyboard()
         }
+
+        mSearchWordView.setHistory(getHistory())
     }
 
     private fun isSearching(): Boolean {
         return mWordTitle.isNullOrBlank()
+    }
+
+    override fun getHistory(): MutableList<String> {
+        return SettingsPreferences.getHistory(mContext)
+    }
+
+    override fun saveHistory(wordTitle: String) {
+        val wordsHistory = getHistory()
+        wordsHistory.add(wordTitle)
+        SettingsPreferences.setHistory(mContext, wordsHistory)
     }
 
     override fun saveWord(word: Word) {
@@ -64,6 +77,7 @@ class AddEditWordPresenter(private val mContext: Context,
         if (!mSearchWordView.isActive()) return
         mAddEditWordView.setView(word)
         mSearchWordView.showWord(isNewWord)
+        saveHistory(word.title)
     }
 
     override fun onDataNotAvailable() {
