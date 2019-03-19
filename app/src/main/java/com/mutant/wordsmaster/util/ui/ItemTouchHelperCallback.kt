@@ -8,13 +8,13 @@ import android.support.v7.widget.helper.ItemTouchHelper
 class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T>) :
         ItemTouchHelper.Callback() {
 
-    override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
+    override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
         val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 
-    override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder,
+    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                         target: RecyclerView.ViewHolder): Boolean {
         return mItemListener.onItemMove(viewHolder.adapterPosition, target.adapterPosition)
     }
@@ -31,12 +31,12 @@ class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T>) :
         }
     }
 
-    override fun clearView(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?) {
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
         super.clearView(recyclerView, viewHolder)
         clearHighlight(viewHolder)
     }
 
-    override fun onChildDraw(c: Canvas?, recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+    override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
             val width: Int? = viewHolder?.itemView?.width
