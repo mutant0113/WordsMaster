@@ -1,5 +1,7 @@
 <resources>
+    <!-- Production admob app id -->
     <!--<string name="ADMOB_APP_ID">ca-app-pub-5321857149407749~3490167347</string>-->
+    <!-- Testing admob app id -->
     <string name="ADMOB_APP_ID">ca-app-pub-3940256099942544~3347511713</string>
 
     <!--<string name="ADMOB_CARD_VIEW_BANNER">ca-app-pub-5321857149407749/6201334438</string>-->

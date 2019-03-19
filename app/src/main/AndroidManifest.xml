@@ -32,11 +32,14 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="7ce5188ce41314d71d03e4010a6ead910a372d12" />
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5321857149407749~3490167347"/>
     </application>
 
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission. WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>

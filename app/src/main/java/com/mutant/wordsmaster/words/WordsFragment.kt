@@ -50,15 +50,15 @@ class WordsFragment : Fragment(), WordsContract.View {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mTts = Tts.newInstance(context.applicationContext)
-        mListAdapter = WordsAdapter(activity, LinkedList(), mItemListener)
+        mTts = Tts.newInstance(requireContext().applicationContext)
+        mListAdapter = WordsAdapter(requireActivity(), LinkedList(), mItemListener)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         val root = inflater.inflate(R.layout.fragment_words, container, false)
         // Set up floating action button
-        val fab = activity.fab_add_word as FloatingActionButton
+        val fab = requireActivity().fab_add_word as FloatingActionButton
         fab.setOnClickListener { mPresenter?.addNewWord() }
 
         // use a linear layout manager
@@ -69,7 +69,8 @@ class WordsFragment : Fragment(), WordsContract.View {
         itemTouchHelper.attachToRecyclerView(recyclerViewWords)
 
         recyclerViewWords.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 if (dy > 0) fab.hide()
                 else fab.show()
                 super.onScrolled(recyclerView, dx, dy)
@@ -77,7 +78,6 @@ class WordsFragment : Fragment(), WordsContract.View {
         })
         return root
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         mPresenter?.result(requestCode, resultCode)
@@ -184,16 +184,16 @@ class WordsFragment : Fragment(), WordsContract.View {
         private var mExpandedPosition = -1
         private var mPreExpandedPosition = -1
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
             val holder = ViewHolder(itemView, itemView.constraint_layout_top, itemView.text_view_title,
                     itemView.image_view_pron, itemView.frame_layout_click_to_expand, itemView.image_view_expand,
                     itemView.linear_layout_card_def)
-            holder.mConstrainLayoutTop.setOnClickListener({
+            holder.mConstrainLayoutTop.setOnClickListener {
                 val position = holder.adapterPosition
-                val intent = AddEditWordActivity.getIntent(context, mWords[position].title)
-                context.startActivity(intent)
-            })
+                val intent = AddEditWordActivity.getIntent(requireContext(), mWords[position].title)
+                requireContext().startActivity(intent)
+            }
 
             holder.mFrameLayoutClickToExpand.setOnClickListener {
                 val position = holder.adapterPosition
@@ -204,9 +204,9 @@ class WordsFragment : Fragment(), WordsContract.View {
                 notifyItemChanged(position)
             }
 
-            holder.mImageViewPron.setOnClickListener({
+            holder.mImageViewPron.setOnClickListener {
                 mTts?.speak(holder.mTextViewTitle.text)
-            })
+            }
 
             return holder
         }
@@ -272,5 +272,4 @@ class WordsFragment : Fragment(), WordsContract.View {
                                val mLinearLayoutDef: LinearLayoutCompat) :
                 RecyclerView.ViewHolder(mItemView)
     }
-
 }

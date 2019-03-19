@@ -44,13 +44,13 @@ class SearchWordFragment : Fragment(), SearchWordContract.View {
     }
 
     override fun showKeyboard() {
-        Utils.showKeyBoard(activity, edit_text_word)
+        Utils.showKeyBoard(requireActivity(), edit_text_word)
     }
 
     override fun showWord(isEditMode: Boolean) {
         setLoadingIndicator(false)
         setSearchButtonEnabled(true)
-        Utils.hideKeyBoard(activity, edit_text_word)
+        Utils.hideKeyBoard(requireContext(), edit_text_word)
         (activity as AddEditWordActivity).showWord(isEditMode)
     }
 

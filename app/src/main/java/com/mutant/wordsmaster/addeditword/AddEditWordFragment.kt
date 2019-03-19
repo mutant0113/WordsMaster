@@ -47,7 +47,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         super.onCreate(savedInstanceState)
         initAd()
         mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
-        mTts = Tts.newInstance(context.applicationContext)
+        mTts = Tts.newInstance(requireContext().applicationContext)
     }
 
     private fun initAd() {
@@ -150,8 +150,8 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     override fun showWordsList() {
-        activity.setResult(Activity.RESULT_OK)
-        activity.finish()
+        requireActivity().setResult(Activity.RESULT_OK)
+        requireActivity().finish()
     }
 
     override fun setView(word: Word) {
@@ -232,24 +232,24 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         private val HEADER = 1
         private val LIST = 2
 
-        override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RecyclerView.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             return when (viewType) {
                 HEADER -> getHeaderHolder(parent)
                 else -> getListHolder(parent)
             }
         }
 
-        private fun getHeaderHolder(parent: ViewGroup?): ViewHolderHeader {
+        private fun getHeaderHolder(parent: ViewGroup): ViewHolderHeader {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples_header, parent, false)
             val holder = ViewHolderHeader(itemView, itemView.image_view_add, itemView.edit_text_example)
-            itemView.setOnClickListener({
+            itemView.setOnClickListener {
                 val example = holder.mEditTextExample.text.toString()
-                if(!example.isBlank()) {
+                if (!example.isBlank()) {
                     mExamples.add(0, example)
                     holder.mEditTextExample.text.clear()
                     notifyItemInserted(0)
                 }
-            })
+            }
             return holder
         }
 
@@ -257,9 +257,9 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
             val holder = ViewHolderList(itemView, itemView.image_view_vert, itemView.text_view_index,
                     itemView.text_view_example)
-            itemView.setOnClickListener({
+            itemView.setOnClickListener {
                 mItemListener.onItemClick(mExamples[holder.adapterPosition])
-            })
+            }
             return holder
         }
 
@@ -286,10 +286,10 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             return if (mIsEditMode) mExamples.size + 1 else mExamples.size
         }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             if (holder is ViewHolderList) {
                 // Item count will be increased by 1 if in edit mode
-                val adjustPosition = if(mIsEditMode) position - 1 else position
+                val adjustPosition = if (mIsEditMode) position - 1 else position
                 val example = mExamples[adjustPosition]
                 holder.mTextViewExample.text = example
                 holder.mImageViewVert.visibility = if (mIsEditMode) View.VISIBLE else View.GONE
@@ -320,5 +320,4 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     override fun isActive(): Boolean {
         return isAdded
     }
-
 }

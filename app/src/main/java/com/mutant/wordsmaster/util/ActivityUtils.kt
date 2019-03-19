@@ -42,7 +42,7 @@ object ActivityUtils {
         transaction.commit()
     }
 
-    fun hideFragment(fragmentManager: FragmentManager, tag: String) {
+    fun hideFragment(fragmentManager: FragmentManager, tag: String?) {
         val fragment = fragmentManager.findFragmentByTag(tag)
         if (fragment != null) {
             val transaction = fragmentManager.beginTransaction()
