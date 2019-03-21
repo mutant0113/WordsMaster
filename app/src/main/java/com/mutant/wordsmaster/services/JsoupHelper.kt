@@ -62,7 +62,7 @@ class JsoupHelper {
                 val pos = engDef?.select(Selector.Definition.cdPos)?.get(i)?.text()
                 val def = engDef?.select(Selector.Definition.defRow)?.get(i)?.text()
                 val example = engDef?.select(Selector.Definition.defExample)?.get(i)?.text()
-                var definition = Definition(pos, def, example)
+                val definition = Definition(pos, def, example)
                 definitions.add(definition)
             }
             word.definitions = definitions
@@ -77,5 +77,4 @@ class JsoupHelper {
             word.examples = examples
         }
     }
-
 }

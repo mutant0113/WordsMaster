@@ -57,7 +57,7 @@ interface WordsDao {
     /**
      * Update a word.
      *
-     * @param word word to be updated
+     * @param words word to be updated
      * @return the number of words updated. This should always be 1.
      */
     @Update

@@ -31,7 +31,6 @@ import kotlinx.android.synthetic.main.item_examples.view.*
 import kotlinx.android.synthetic.main.item_examples_header.view.*
 import java.util.*
 
-
 class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 
     private var mPresenter: AddEditWordContract.Present? = null
@@ -73,11 +72,10 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         recyclerViewExample.layoutManager = LinearLayoutManager(activity)
         recyclerViewExample.adapter = mExampleAdapter
 
-        root.image_view_pron_add_edit.setOnClickListener({ mTts?.speak(toolbar.title) })
-        root.collapsing_toolbar_layout.setOnClickListener({ mTts?.speak(toolbar.title) })
+        root.image_view_pron_add_edit.setOnClickListener { mTts?.speak(toolbar.title) }
+        root.collapsing_toolbar_layout.setOnClickListener { mTts?.speak(toolbar.title) }
 
-        root.fab_edit.setOnClickListener({ setEditMode(true) })
-
+        root.fab_edit.setOnClickListener { setEditMode(true) }
 
 //        root.scroll_view.setOnScrollChangeListener(
 //                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
@@ -197,7 +195,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
     }
 
     private fun getDefView(definition: Definition): View {
-        val root = this.layoutInflater.inflate(R.layout.item_def, null, false)
+        val root = View.inflate(requireContext(), R.layout.item_def, null)
         root.text_view_pos.text = definition.pos
         root.text_view_def.text = definition.def
         return root
@@ -240,7 +238,7 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
 
         private fun getHeaderHolder(parent: ViewGroup): ViewHolderHeader {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples_header, parent, false)
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_examples_header, parent, false)
             val holder = ViewHolderHeader(itemView, itemView.image_view_add, itemView.edit_text_example)
             itemView.setOnClickListener {
                 val example = holder.mEditTextExample.text.toString()

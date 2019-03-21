@@ -1,0 +1,7 @@
+<resources>
+    <string name="no_such_word_warning">No such word, maybe search again?</string>
+    <string name="edit_text_word">Search New Word</string>
+    <string name="custom">Custom</string>
+    <string name="add_new_example">Add new example</string>
+    <string name="title">Title</string>
+</resources>

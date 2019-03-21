@@ -25,19 +25,24 @@ private constructor(private val mAppExecutors: AppExecutors) : WordsRemoteContra
     @SuppressLint("SetJavaScriptEnabled")
     private fun parseHtmlFromWebView(context: Context, sourceText: String?) {
         misWebViewLoaded = false
-        val webView = WebView(context)
-        webView.settings.javaScriptEnabled = true
-        webView.addJavascriptInterface(LoadListener(), "HTMLOUT")
-        webView.webViewClient = mWebViewClient
-        // TODO srcLang and tgtLang must be parameters.
-        webView.loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
+        WebView(context).apply {
+            settings.javaScriptEnabled = true
+            addJavascriptInterface(LoadListener(), "HTMLOUT")
+            webViewClient = mWebViewClient
+        }.run {
+            // TODO srcLang and tgtLang must be parameters.
+            loadUrl("${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
+            DebugHelper.d(msg = "${JsoupHelper.getUrl()}#en/zh-TW/$sourceText")
+        }
     }
 
     private val mWebViewClient = object : WebViewClient() {
 
         override fun onPageFinished(view: WebView, url: String) {
             if (!misWebViewLoaded) {
-                view.loadUrl("javascript:HTMLOUT.processHTML(document.documentElement.outerHTML);")
+                view.loadUrl("javascript:HTMLOUT.processHTML" +
+                        "('<html>'+document.getElementsByTagName('html')[0].innerHTML+'</html>');")
+                DebugHelper.d(msg = "onPageFinished, loadUrl HTMLOUT")
                 misWebViewLoaded = true
             }
         }
@@ -50,9 +55,10 @@ private constructor(private val mAppExecutors: AppExecutors) : WordsRemoteContra
     private inner class LoadListener {
 
         @JavascriptInterface
+        @SuppressWarnings("unused")
         fun processHTML(html: String) {
             // TODO
-            DebugHelper.d("test", "processHTML: $html")
+            DebugHelper.d(msg = "processHTML: $html")
             parseHtml(html)
         }
     }
@@ -60,13 +66,13 @@ private constructor(private val mAppExecutors: AppExecutors) : WordsRemoteContra
     fun parseHtml(html: String) {
         val runnable = Runnable {
             val word = JsoupHelper.parseHtml(html)
-            mAppExecutors.mainThread().execute({
+            mAppExecutors.mainThread().execute {
                 if (word == null || word.definitions.size == 0) {
                     mCallback?.onDataNotAvailable()
                 } else {
                     mCallback?.onWordLoaded(word, true)
                 }
-            })
+            }
         }
 
         mAppExecutors.networkIO().execute(runnable)

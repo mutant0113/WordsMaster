@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">WordsMaster</string>
-    <string name="cancel">cancel</string>
     <string name="confirm">confirm</string>
 
     <string name="add_word">New word!!</string>

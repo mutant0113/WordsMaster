@@ -11,11 +11,11 @@ import java.util.*
 class DebugHelper {
 
     companion object {
+        private val TAG = DebugHelper::class.java.simpleName
         private var mIsDebugEnabled: Boolean = false
         private var mDebugLogPath: String = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).absolutePath
         private var mDataOutputStream: DataOutputStream? = null
-        private val TAG = DebugHelper::class.java.simpleName
 
         fun setDebugEnabled(enabled: Boolean) {
             mIsDebugEnabled = enabled
@@ -25,42 +25,42 @@ class DebugHelper {
             mDebugLogPath = path
         }
 
-        fun v(tag: String, msg: Any) {
+        fun v(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.v(tag, "" + msg)
                 writeLog(tag, "" + msg)
             }
         }
 
-        fun i(tag: String, msg: Any) {
+        fun i(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.i(tag, "" + msg)
                 writeLog(tag, "" + msg)
             }
         }
 
-        fun d(tag: String, msg: Any) {
+        fun d(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.d(tag, "" + msg)
                 writeLog(tag, "" + msg)
             }
         }
 
-        fun e(tag: String, msg: Any) {
+        fun e(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.e(tag, getClassLineNumber(tag) + msg)
                 writeLog(tag, "" + msg)
             }
         }
 
-        fun w(tag: String, msg: Any) {
+        fun w(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.w(tag, "" + msg)
                 writeLog(tag, "" + msg)
             }
         }
 
-        fun wtf(tag: String, msg: Any) {
+        fun wtf(tag: String = TAG, msg: Any) {
             if (mIsDebugEnabled) {
                 Log.wtf(tag, "" + msg)
                 writeLog(tag, "" + msg)
@@ -68,9 +68,6 @@ class DebugHelper {
         }
 
         private fun writeLog(tag: String, msg: String) {
-            if (mDebugLogPath == null) {
-                return
-            }
             try {
                 if (mDataOutputStream == null) {
                     val calendar = Calendar.getInstance()

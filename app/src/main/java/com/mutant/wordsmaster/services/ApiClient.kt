@@ -24,7 +24,7 @@ class ApiClient private constructor() : ApiContract {
     }
 
     companion object {
-        var TAG = ApiClient::class.java.simpleName!!
+        
         private const val GOOGLE_TRANSLATE_URL = "https://translate.google.com/"
         private var mApiClient: ApiClient? = null
 
@@ -35,5 +35,4 @@ class ApiClient private constructor() : ApiContract {
             return mApiClient!!
         }
     }
-
 }

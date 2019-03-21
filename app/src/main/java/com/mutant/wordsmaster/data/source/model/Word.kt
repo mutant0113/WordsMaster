@@ -7,7 +7,6 @@ import android.arch.persistence.room.PrimaryKey
 import com.google.common.base.Strings
 import java.util.*
 
-
 /**
  * Immutable model class for a Task.
  */
@@ -39,8 +38,8 @@ data class Word(
      * Use this constructor to create a new active Word.
      *
      * @param title      title of the word
-     * @param definition Definition of the word
-     * @param example    e.g. of the word
+     * @param definitions Definition of the word
+     * @param examples    e.g. of the word
      */
     @Ignore
     constructor(title: String, definitions: MutableList<Definition>, examples: MutableList<String>) :
@@ -48,5 +47,4 @@ data class Word(
 
     @Ignore
     constructor() : this(UUID.randomUUID().toString(), "", mutableListOf<Definition>(), mutableListOf<String>())
-
 }

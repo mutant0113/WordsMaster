@@ -39,19 +39,19 @@ class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T>) :
     override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-            val width: Int? = viewHolder?.itemView?.width
+            val width: Int? = viewHolder.itemView.width
             val alpha = if (width != null) 1 - Math.abs(dX) / width else 1f
 
-            viewHolder?.itemView?.alpha = alpha
+            viewHolder.itemView.alpha = alpha
             // Set background color to white when dx is 0 which means not to swipe
-            if (dX == 0f) viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
-            else viewHolder?.itemView?.setBackgroundColor(Color.YELLOW)
+            if (dX == 0f) viewHolder.itemView.setBackgroundColor(Color.WHITE)
+            else viewHolder.itemView.setBackgroundColor(Color.YELLOW)
         } else if (actionState == ItemTouchHelper.ANIMATION_TYPE_SWIPE_CANCEL) {
             clearHighlight(viewHolder)
         }
     }
 
-    fun clearHighlight(viewHolder: RecyclerView.ViewHolder?) {
+    private fun clearHighlight(viewHolder: RecyclerView.ViewHolder?) {
         viewHolder?.itemView?.alpha = 1.0f
         viewHolder?.itemView?.setBackgroundColor(Color.WHITE)
     }

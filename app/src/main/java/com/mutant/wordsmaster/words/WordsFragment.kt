@@ -31,7 +31,6 @@ import kotlinx.android.synthetic.main.item_def.view.*
 import kotlinx.android.synthetic.main.item_words.view.*
 import java.util.*
 
-
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -185,7 +184,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         private var mPreExpandedPosition = -1
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_words, parent, false)
+            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_words, parent, false)
             val holder = ViewHolder(itemView, itemView.constraint_layout_top, itemView.text_view_title,
                     itemView.image_view_pron, itemView.frame_layout_click_to_expand, itemView.image_view_expand,
                     itemView.linear_layout_card_def)
@@ -225,18 +224,19 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val isExpanded = position == mExpandedPosition
+            val adapterPosition = holder.adapterPosition
+            val isExpanded = adapterPosition == mExpandedPosition
             holder.mLinearLayoutDef.visibility = if (isExpanded) View.VISIBLE else View.GONE
             holder.itemView.isActivated = isExpanded
 
             if (isExpanded) {
-                mPreExpandedPosition = position
+                mPreExpandedPosition = adapterPosition
                 holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_less_white_24px)
             } else {
                 holder.mImagerViewExpand.setImageResource(R.drawable.ic_expand_more_white_24px)
             }
 
-            val word = mWords[position]
+            val word = mWords[adapterPosition]
             setTitle(holder, word.title)
             setDefinition(holder, word.definitions)
         }
@@ -253,7 +253,7 @@ class WordsFragment : Fragment(), WordsContract.View {
         }
 
         private fun getDefView(definition: Definition): View {
-            val root = mActivity.layoutInflater.inflate(R.layout.item_def, null, false)
+            val root = View.inflate(mActivity, R.layout.item_def, null)
             root.text_view_pos.text = definition.pos
             root.text_view_def.text = definition.def
             return root

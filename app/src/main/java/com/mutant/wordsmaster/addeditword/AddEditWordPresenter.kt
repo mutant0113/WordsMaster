@@ -11,7 +11,6 @@ import com.mutant.wordsmaster.data.source.WordsRepository
 import com.mutant.wordsmaster.data.source.local.SettingsPreferences
 import com.mutant.wordsmaster.data.source.model.Word
 
-
 class AddEditWordPresenter(private val mContext: Context,
                            private val mWordTitle: String?,
                            private val mWordsRepository: WordsRepository,
@@ -99,12 +98,6 @@ class AddEditWordPresenter(private val mContext: Context,
             val model = Translate.TranslateOption.model("nmt")
 
             val translation = translate.translate(sourceText, sourceLanguageOption, targetTranslateOption, model)
-        }
-        ).start()
+        }).start()
     }
-
-    companion object {
-        private val TAG = AddEditWordPresenter::class.java.simpleName
-    }
-
 }

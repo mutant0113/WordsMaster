@@ -13,5 +13,4 @@ interface WordsRemoteContract {
     }
 
     fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback)
-
 }

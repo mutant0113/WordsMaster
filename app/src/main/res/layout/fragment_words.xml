@@ -18,19 +18,22 @@
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_words"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout_no_words"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,6 +44,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center"
+            android:contentDescription="@null"
             android:src="@drawable/ic_assignment_turned_in_24dp" />
 
         <TextView
@@ -57,7 +61,5 @@
             android:background="@drawable/touch_feedback"
             android:gravity="center"
             android:text="@string/no_words_add" />
-
     </LinearLayout>
-
 </android.support.constraint.ConstraintLayout>

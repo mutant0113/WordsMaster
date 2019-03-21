@@ -1,0 +1,8 @@
+<resources>
+    <string name="image_view_search">Search</string>
+    <string name="image_view_pron_add_edit">Edit</string>
+    <string name="image_view_add">Add</string>
+    <string name="image_view_pron">Pron</string>
+    <string name="image_view_expand">Expand</string>
+    <string name="image_view_index">Index</string>
+</resources>

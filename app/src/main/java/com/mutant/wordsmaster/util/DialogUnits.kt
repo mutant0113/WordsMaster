@@ -16,7 +16,7 @@ class DialogUnits {
             val builder = AlertDialog.Builder(context)
             builder.setTitle(title)
                     .setMessage(msg)
-                    .setNegativeButton(context.getString(R.string.cancel), onNegativeClickListener)
+                    .setNegativeButton(context.getString(android.R.string.cancel), onNegativeClickListener)
                     .setPositiveButton(context.getString(R.string.confirm), onPositiveClickListener)
 
             return builder.create()
