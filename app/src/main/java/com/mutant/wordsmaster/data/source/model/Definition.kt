@@ -1,7 +1,6 @@
 package com.mutant.wordsmaster.data.source.model
 
-import android.arch.persistence.room.ColumnInfo
-
+import androidx.room.ColumnInfo
 
 data class Definition(
         // Part of speech

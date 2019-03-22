@@ -16,13 +16,12 @@
 
 package com.mutant.wordsmaster.data.source.local
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.Room
-import android.arch.persistence.room.RoomDatabase
-import android.arch.persistence.room.TypeConverters
 import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.mutant.wordsmaster.data.source.model.DefConverter
-
 import com.mutant.wordsmaster.data.source.model.Word
 
 /**
@@ -37,7 +36,6 @@ abstract class WordsDatabase : RoomDatabase() {
     companion object {
 
         private var INSTANCE: WordsDatabase? = null
-
         private val sLock = Any()
 
         fun getInstance(context: Context): WordsDatabase? {
@@ -52,5 +50,4 @@ abstract class WordsDatabase : RoomDatabase() {
             return INSTANCE
         }
     }
-
 }

@@ -1,7 +1,7 @@
 package com.mutant.wordsmaster.data.source.local
 
 import android.content.Context
-import android.support.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.util.AppExecutors

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.util.ActivityUtils
 import com.mutant.wordsmaster.util.DialogUnits
@@ -77,7 +77,5 @@ class AddEditWordActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
-
     }
-
 }

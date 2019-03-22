@@ -1,7 +1,7 @@
 package com.mutant.wordsmaster.data.source
 
-import android.arch.persistence.room.Entity
 import android.content.Context
+import androidx.room.Entity
 import com.mutant.wordsmaster.data.source.model.Word
 import java.util.*
 

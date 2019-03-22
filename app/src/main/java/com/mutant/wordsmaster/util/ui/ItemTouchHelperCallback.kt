@@ -2,8 +2,8 @@ package com.mutant.wordsmaster.util.ui
 
 import android.graphics.Canvas
 import android.graphics.Color
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 
 class ItemTouchHelperCallback<T>(private val mItemListener: ItemListener<T>) :
         ItemTouchHelper.Callback() {

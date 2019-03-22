@@ -1,9 +1,9 @@
 package com.mutant.wordsmaster.words
 
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.mutant.wordsmaster.R
