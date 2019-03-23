@@ -39,6 +39,10 @@ android {
         exclude 'project.properties'
         exclude 'META-INF/INDEX.LIST'
     }
+
+    dataBinding {
+        enabled = true
+    }
 }
 
 androidExtensions {

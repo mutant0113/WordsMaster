@@ -8,12 +8,9 @@ import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.util.ActivityUtils
-import com.mutant.wordsmaster.util.Injection
 import kotlinx.android.synthetic.main.activity_words.*
 
 class WordsActivity : AppCompatActivity() {
-
-    private lateinit var mWordsPresent: WordsPresenter
 
     companion object {
         const val TAG_FRAGMENT_WORDS = "WORDS"
@@ -32,9 +29,6 @@ class WordsActivity : AppCompatActivity() {
             ActivityUtils.addFragment(supportFragmentManager, wordsFragment,
                     R.id.content_main, TAG_FRAGMENT_WORDS)
         }
-
-        mWordsPresent = WordsPresenter(
-                Injection.provideTasksRepository(applicationContext), wordsFragment)
 
         // TODO
 //        // Load previously saved state, if available.

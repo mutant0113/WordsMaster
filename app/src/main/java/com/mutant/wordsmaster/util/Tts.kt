@@ -17,13 +17,6 @@ class Tts(context: Context) {
         })
     }
 
-    companion object {
-
-        fun newInstance(context: Context): Tts? {
-            return Tts(context)
-        }
-    }
-
     fun speak(text: CharSequence) {
         mTextToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
@@ -33,4 +26,10 @@ class Tts(context: Context) {
         mTextToSpeech.shutdown()
     }
 
+    companion object {
+
+        fun newInstance(context: Context): Tts {
+            return Tts(context)
+        }
+    }
 }
