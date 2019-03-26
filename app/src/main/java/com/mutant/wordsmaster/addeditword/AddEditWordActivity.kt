@@ -14,18 +14,6 @@ class AddEditWordActivity : AppCompatActivity() {
 
     private lateinit var mAddEditWordFragment: AddEditWordFragment
 
-    companion object {
-        const val REQUEST_ADD_TASK = 1
-        const val TAG_FRAGMENT_ADDEDITWORD = "ADDEDITWORD"
-        const val TAG_FRAGMENT_SEARCH_WORD = "SEARCHWORD"
-
-        fun getIntent(context: Context, wordTitle: String): Intent {
-            val intent = Intent(context, AddEditWordActivity::class.java)
-            intent.putExtra(AddEditWordFragment.ARGUMENT_WORD_TITLE, wordTitle)
-            return intent
-        }
-    }
-
     private lateinit var mAddEditWordPresenter: AddEditWordPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +64,18 @@ class AddEditWordActivity : AppCompatActivity() {
                     DialogInterface.OnClickListener { _, _ -> super.onBackPressed() }).show()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    companion object {
+        const val REQUEST_ADD_TASK = 1
+        const val TAG_FRAGMENT_ADDEDITWORD = "ADDEDITWORD"
+        const val TAG_FRAGMENT_SEARCH_WORD = "SEARCHWORD"
+
+        fun getIntent(context: Context, wordTitle: String): Intent {
+            val intent = Intent(context, AddEditWordActivity::class.java)
+            intent.putExtra(AddEditWordFragment.ARGUMENT_WORD_TITLE, wordTitle)
+            return intent
         }
     }
 }

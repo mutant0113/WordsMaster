@@ -4,15 +4,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.mutant.wordsmaster.addeditword.AddEditWordActivity
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
 import com.mutant.wordsmaster.databinding.ItemDefBinding
 import com.mutant.wordsmaster.databinding.ItemWordsBinding
-import com.mutant.wordsmaster.util.Tts
-import com.mutant.wordsmaster.util.ui.ItemListener
 
-class WordsAdapter(private val tts: Tts) :
+class WordsAdapter(private val viewModel: WordsViewModel?) :
         RecyclerView.Adapter<WordsAdapter.ViewHolder>() {
 
     private var expandedPosition = -1
@@ -77,10 +74,7 @@ class WordsAdapter(private val tts: Tts) :
         }
 
         override fun onNavigatorAddEditWordActivity(title: String) {
-            with(binding.root.context) {
-                val intent = AddEditWordActivity.getIntent(this, title)
-                startActivity(intent)
-            }
+            viewModel?.openAddEditWordActivity(title)
         }
 
         override fun onExpandDef(word: Word) {
@@ -93,7 +87,7 @@ class WordsAdapter(private val tts: Tts) :
         }
 
         override fun onTtsSpeak(title: String) {
-            tts.speak(title)
+            viewModel?.setTtsTitle(title)
         }
     }
 }

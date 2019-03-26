@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,8 +41,17 @@ class WordsFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         binding = FragmentWordsBinding.inflate(inflater, container, false).apply {
             viewModel = obtainViewModel(WordsViewModel::class.java).apply {
-                dataLoadingError.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+                dataLoadingError.observe(viewLifecycleOwner, Observer {
                     if (it) showMessage(R.string.loading_words_error)
+                })
+
+                openAddEditWordEvent.observe(viewLifecycleOwner, Observer {
+                    val intent = AddEditWordActivity.getIntent(requireContext(), it)
+                    startActivity(intent)
+                })
+
+                ttsTitle.observe(viewLifecycleOwner, Observer {
+                    tts.speak(it)
                 })
             }
             lifecycleOwner = viewLifecycleOwner
@@ -57,7 +67,7 @@ class WordsFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.recyclerViewWords.apply {
             layoutManager = LinearLayoutManager(activity)
-            listAdapter = WordsAdapter(tts)
+            listAdapter = WordsAdapter(binding.viewModel)
             adapter = listAdapter
 
             val itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(mItemListener))
