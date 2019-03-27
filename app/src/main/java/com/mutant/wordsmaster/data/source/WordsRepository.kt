@@ -1,13 +1,13 @@
 package com.mutant.wordsmaster.data.source
 
 import android.content.Context
-import androidx.room.Entity
 import com.mutant.wordsmaster.data.source.model.Word
 import java.util.*
 
-@Entity(tableName = "words")
-class WordsRepository private constructor(private val mWordsRemoteModel: WordsRemoteContract,
-                                          private val mWordsLocalModel: WordsLocalContract) : WordsRemoteContract, WordsLocalContract {
+class WordsRepository(
+        val wordsRemoteModel: WordsRemoteContract,
+        val wordsLocalModel: WordsLocalContract) :
+        WordsRemoteContract, WordsLocalContract {
 
     /**
      * This variable has package local visibility so it can be accessed from tests.
@@ -25,7 +25,7 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
             callback.onWordsLoaded(LinkedList(mCachedWords.values))
         }
 
-        mWordsLocalModel.getWords(object : WordsLocalContract.LoadWordsCallback {
+        wordsLocalModel.getWords(object : WordsLocalContract.LoadWordsCallback {
 
             override fun onWordsLoaded(words: MutableList<Word>) {
                 refreshCache(words)
@@ -42,15 +42,15 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
     }
 
     override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
-        if(wordTitle.isNullOrBlank()) callback.onDataNotAvailable()
-        mWordsLocalModel.getWordByTitle(context, wordTitle, object : WordsLocalContract.GetWordCallback {
+        if (wordTitle.isNullOrBlank()) callback.onDataNotAvailable()
+        wordsLocalModel.getWordByTitle(context, wordTitle, object : WordsLocalContract.GetWordCallback {
 
             override fun onWordLoaded(word: Word, isNewWord: Boolean) {
                 callback.onWordLoaded(word, isNewWord)
             }
 
             override fun onDataNotAvailable() {
-                mWordsRemoteModel.getWordByTitle(context, wordTitle, callback)
+                wordsRemoteModel.getWordByTitle(context, wordTitle, callback)
             }
 
         })
@@ -68,22 +68,22 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
     }
 
     override fun saveWord(word: Word) {
-        mWordsLocalModel.saveWord(word)
+        wordsLocalModel.saveWord(word)
         mCachedWords[word.id] = word
     }
 
     override fun deleteWord(wordId: String) {
-        mWordsLocalModel.deleteWord(wordId)
+        wordsLocalModel.deleteWord(wordId)
         mCachedWords.remove(wordId)
     }
 
     override fun deleteAllWords() {
-        mWordsLocalModel.deleteAllWords()
+        wordsLocalModel.deleteAllWords()
         mCachedWords.clear()
     }
 
     override fun swap(word1: Word, word2: Word) {
-        mWordsLocalModel.swap(word1, word2)
+        wordsLocalModel.swap(word1, word2)
         val updateWord1 = word1.copy(id = word2.id)
         val updateWord2 = word2.copy(id = word1.id)
         mCachedWords[updateWord1.id] = updateWord1
@@ -92,7 +92,8 @@ class WordsRepository private constructor(private val mWordsRemoteModel: WordsRe
 
     companion object {
 
-        @Volatile private var INSTANCE: WordsRepository? = null
+        @Volatile
+        private var INSTANCE: WordsRepository? = null
 
         /**
          * Returns the single instance of this class, creating it if necessary.

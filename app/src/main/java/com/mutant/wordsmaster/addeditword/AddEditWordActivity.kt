@@ -68,7 +68,7 @@ class AddEditWordActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val REQUEST_ADD_TASK = 1
+        const val REQUEST_ADD_WORD = 1
         const val TAG_FRAGMENT_ADDEDITWORD = "ADDEDITWORD"
         const val TAG_FRAGMENT_SEARCH_WORD = "SEARCHWORD"
 

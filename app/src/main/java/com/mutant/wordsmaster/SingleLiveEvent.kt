@@ -22,13 +22,13 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class SingleLiveEvent<T> : MutableLiveData<T>() {
 
-    private val hasBeenHandled = AtomicBoolean(true)
+    val hasBeenHandled = AtomicBoolean(true)
 
     @MainThread
     override fun observe(@NonNull owner: LifecycleOwner, @NonNull observer: Observer<in T>) {
-
         if (hasActiveObservers()) {
-            DebugHelper.w(TAG, "Multiple observers registered but only one will be notified of changes.")
+            DebugHelper.w(TAG, "SingleLiveEvent::observe, " +
+                    "Multiple observers registered but only one will be notified of changes.")
         }
 
         // Observe the internal MutableLiveData
@@ -37,6 +37,21 @@ class SingleLiveEvent<T> : MutableLiveData<T>() {
                 observer.onChanged(t)
             }
         })
+    }
+
+    @MainThread
+    override fun observeForever(observer: Observer<in T>) {
+        if (hasActiveObservers()) {
+            DebugHelper.w(TAG, "SingleLiveEvent::observeForever, " +
+                    "Multiple observers registered but only one will be notified of changes.")
+        }
+
+        // Observe the internal MutableLiveData
+        super.observeForever { t ->
+            if (hasBeenHandled.compareAndSet(false, true)) {
+                observer.onChanged(t)
+            }
+        }
     }
 
     @MainThread

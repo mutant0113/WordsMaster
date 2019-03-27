@@ -18,9 +18,7 @@ class WordsAdapter(private val viewModel: WordsViewModel?) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemWordsBinding.inflate(LayoutInflater.from(parent.context), parent,
                 false)
-        return ViewHolder(binding).apply {
-            binding.listener = this
-        }
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -87,7 +85,7 @@ class WordsAdapter(private val viewModel: WordsViewModel?) :
         }
 
         override fun onTtsSpeak(title: String) {
-            viewModel?.setTtsTitle(title)
+            viewModel?.setTtsWord(title)
         }
     }
 }

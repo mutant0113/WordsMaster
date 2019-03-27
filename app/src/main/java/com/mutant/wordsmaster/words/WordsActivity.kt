@@ -12,10 +12,6 @@ import kotlinx.android.synthetic.main.activity_words.*
 
 class WordsActivity : AppCompatActivity() {
 
-    companion object {
-        const val TAG_FRAGMENT_WORDS = "WORDS"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_words)
@@ -44,13 +40,13 @@ class WordsActivity : AppCompatActivity() {
         ad_view.adListener = mAdListener
     }
 
-    private val mAdListener = object: AdListener() {
+    private val mAdListener = object : AdListener() {
 
         override fun onAdLoaded() {
             // Code to be executed when an ad finishes loading.
         }
 
-        override fun onAdFailedToLoad(errorCode : Int) {
+        override fun onAdFailedToLoad(errorCode: Int) {
             // Code to be executed when an ad request fails.
         }
 
@@ -83,6 +79,10 @@ class WordsActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    companion object {
+        const val TAG_FRAGMENT_WORDS = "WORDS"
     }
 
 }
