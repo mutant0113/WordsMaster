@@ -1,6 +1,5 @@
 package com.mutant.wordsmaster.data.source
 
-import android.content.Context
 import com.mutant.wordsmaster.data.source.model.Word
 
 interface WordsLocalContract {
@@ -18,7 +17,7 @@ interface WordsLocalContract {
     }
 
     fun getWords(callback: LoadWordsCallback)
-    fun getWordByTitle(context: Context, wordTitle: String?, callback: GetWordCallback)
+    fun getWordByTitle(wordTitle: String, callback: GetWordCallback)
     fun saveWord(word: Word)
     fun deleteWord(wordId: String)
     fun deleteAllWords()

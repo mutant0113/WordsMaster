@@ -20,9 +20,10 @@ import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.mutant.wordsmaster.addeditword.AddEditWordViewModel
 import com.mutant.wordsmaster.data.source.WordsRepository
-import com.mutant.wordsmaster.words.WordsViewModel
 import com.mutant.wordsmaster.util.Injection
+import com.mutant.wordsmaster.words.WordsViewModel
 
 /**
  * A creator is used to inject the product ID into the ViewModel
@@ -38,6 +39,8 @@ class ViewModelFactory private constructor(private val wordsRepository: WordsRep
                 when {
                     isAssignableFrom(WordsViewModel::class.java) ->
                         WordsViewModel(wordsRepository)
+                    isAssignableFrom(AddEditWordViewModel::class.java) ->
+                        AddEditWordViewModel(wordsRepository)
                     else ->
                         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
                 }

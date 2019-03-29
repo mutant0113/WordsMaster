@@ -5,6 +5,7 @@ import android.content.Context
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.mutant.wordsmaster.MyApplication
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.WordsRemoteContract
 import com.mutant.wordsmaster.services.JsoupHelper
@@ -17,13 +18,14 @@ private constructor(private val mAppExecutors: AppExecutors) : WordsRemoteContra
     private var misWebViewLoaded = false
     private var mCallback: WordsLocalContract.GetWordCallback? = null
 
-    override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
+    override fun getWordByTitle(wordTitle: String, callback: WordsLocalContract.GetWordCallback) {
         mCallback = callback
-        parseHtmlFromWebView(context, wordTitle)
+        // FIXME
+        parseHtmlFromWebView(MyApplication.context, wordTitle)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun parseHtmlFromWebView(context: Context, sourceText: String?) {
+    private fun parseHtmlFromWebView(context: Context?, sourceText: String?) {
         misWebViewLoaded = false
         WebView(context).apply {
             settings.javaScriptEnabled = true

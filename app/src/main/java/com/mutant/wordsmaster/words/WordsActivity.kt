@@ -17,7 +17,7 @@ class WordsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_words)
 //        setSupportActionBar(toolbar)
 
-        initAds()
+        setupAds()
 
         var wordsFragment = supportFragmentManager.findFragmentById(R.id.content_main) as WordsFragment?
         if (wordsFragment == null) {
@@ -34,7 +34,7 @@ class WordsActivity : AppCompatActivity() {
 //        }
     }
 
-    private fun initAds() {
+    private fun setupAds() {
         val adRequest = AdRequest.Builder().build()
         ad_view.loadAd(adRequest)
         ad_view.adListener = mAdListener

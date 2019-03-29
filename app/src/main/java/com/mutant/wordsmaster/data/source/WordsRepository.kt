@@ -1,6 +1,5 @@
 package com.mutant.wordsmaster.data.source
 
-import android.content.Context
 import com.mutant.wordsmaster.data.source.model.Word
 import java.util.*
 
@@ -41,16 +40,15 @@ class WordsRepository(
         })
     }
 
-    override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
-        if (wordTitle.isNullOrBlank()) callback.onDataNotAvailable()
-        wordsLocalModel.getWordByTitle(context, wordTitle, object : WordsLocalContract.GetWordCallback {
+    override fun getWordByTitle(wordTitle: String, callback: WordsLocalContract.GetWordCallback) {
+        wordsLocalModel.getWordByTitle(wordTitle, object : WordsLocalContract.GetWordCallback {
 
             override fun onWordLoaded(word: Word, isNewWord: Boolean) {
                 callback.onWordLoaded(word, isNewWord)
             }
 
             override fun onDataNotAvailable() {
-                wordsRemoteModel.getWordByTitle(context, wordTitle, callback)
+                wordsRemoteModel.getWordByTitle(wordTitle, callback)
             }
 
         })

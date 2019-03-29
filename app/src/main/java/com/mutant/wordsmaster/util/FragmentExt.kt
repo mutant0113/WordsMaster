@@ -18,11 +18,11 @@ package com.mutant.wordsmaster.util
 /**
  * Various extension functions for AppCompatActivity.
  */
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import com.mutant.wordsmaster.ViewModelFactory
 
-fun <T : ViewModel> AppCompatActivity.obtainViewModel(viewModelClass: Class<T>) =
+fun <T : ViewModel> Fragment.obtainViewModel(viewModelClass: Class<T>) =
         ViewModelProviders.of(this,
-                ViewModelFactory.getInstance(applicationContext)).get(viewModelClass)
+                ViewModelFactory.getInstance(requireContext().applicationContext)).get(viewModelClass)

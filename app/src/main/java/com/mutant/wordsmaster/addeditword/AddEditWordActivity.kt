@@ -6,15 +6,15 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.mutant.wordsmaster.R
+import com.mutant.wordsmaster.addeditword.search.SearchWordFragment
 import com.mutant.wordsmaster.util.ActivityUtils
 import com.mutant.wordsmaster.util.DialogUnits
-import com.mutant.wordsmaster.util.Injection
+import com.mutant.wordsmaster.util.obtainViewModel
 
 class AddEditWordActivity : AppCompatActivity() {
 
     private lateinit var mAddEditWordFragment: AddEditWordFragment
-
-    private lateinit var mAddEditWordPresenter: AddEditWordPresenter
+    private lateinit var viewModel: AddEditWordViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +46,15 @@ class AddEditWordActivity : AppCompatActivity() {
         else
             ActivityUtils.hideFragment(supportFragmentManager, TAG_FRAGMENT_SEARCH_WORD)
 
-        // Create the presenter
-        mAddEditWordPresenter = AddEditWordPresenter(this, wordTitle,
-                Injection.provideTasksRepository(applicationContext), mAddEditWordFragment, searchFragment)
+        viewModel = obtainViewModel()
     }
+
+    override fun onResume() {
+        super.onResume()
+        obtainViewModel().start(intent.getStringExtra(AddEditWordFragment.ARGUMENT_WORD_TITLE))
+    }
+
+    fun obtainViewModel(): AddEditWordViewModel = obtainViewModel(AddEditWordViewModel::class.java)
 
     fun showWord(isEditMode: Boolean) {
         mAddEditWordFragment.setEditMode(isEditMode)
@@ -57,7 +62,7 @@ class AddEditWordActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (mAddEditWordFragment.isEditMode()) {
+        if (viewModel.editMode.value == true) {
             DialogUnits.createDialog(this, "Changes not save",
                     "Are you sure to leave without saving?",
                     DialogInterface.OnClickListener { dialog, _ -> dialog.dismiss() },

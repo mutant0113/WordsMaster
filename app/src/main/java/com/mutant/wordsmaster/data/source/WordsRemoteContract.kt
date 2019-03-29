@@ -1,6 +1,5 @@
 package com.mutant.wordsmaster.data.source
 
-import android.content.Context
 import com.mutant.wordsmaster.data.source.model.Word
 
 interface WordsRemoteContract {
@@ -12,5 +11,5 @@ interface WordsRemoteContract {
         fun onDataNotAvailable()
     }
 
-    fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback)
+    fun getWordByTitle(wordTitle: String, callback: WordsLocalContract.GetWordCallback)
 }

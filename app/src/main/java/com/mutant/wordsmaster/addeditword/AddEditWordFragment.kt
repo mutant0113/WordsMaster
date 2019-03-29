@@ -5,78 +5,72 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.InterstitialAd
 import com.google.android.material.snackbar.Snackbar
 import com.mutant.wordsmaster.R
-import com.mutant.wordsmaster.addeditword.contract.AddEditWordContract
 import com.mutant.wordsmaster.data.source.model.Definition
 import com.mutant.wordsmaster.data.source.model.Word
+import com.mutant.wordsmaster.databinding.FragmentAddwordBinding
 import com.mutant.wordsmaster.util.Tts
 import com.mutant.wordsmaster.util.trace.DebugHelper
 import com.mutant.wordsmaster.util.ui.ItemListener
 import com.mutant.wordsmaster.util.ui.ItemTouchHelperCallback
 import kotlinx.android.synthetic.main.fragment_addword.*
-import kotlinx.android.synthetic.main.fragment_addword.view.*
 import kotlinx.android.synthetic.main.item_def.view.*
-import kotlinx.android.synthetic.main.item_examples.view.*
-import kotlinx.android.synthetic.main.item_examples_header.view.*
 import java.util.*
 
-class AddEditWordFragment : Fragment(), AddEditWordContract.View {
+class AddEditWordFragment : Fragment() {
 
-    private var mPresenter: AddEditWordContract.Present? = null
-    private var mDefinitions = mutableListOf<Definition>()
-    private lateinit var mExampleAdapter: ExamplesAdapter
-    private var mTts: Tts? = null
-    private lateinit var mWordId: String
-    private var mIsEditMode = false
+    private lateinit var binding: FragmentAddwordBinding
 
-    private lateinit var mInterstitialAd: InterstitialAd
+    private lateinit var wordId: String
+    private lateinit var exampleAdapter: ExamplesAdapter
+    private var definitions = mutableListOf<Definition>()
+    private var tts: Tts? = null
+
+    private lateinit var interstitialAd: InterstitialAd
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initAd()
-        mExampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
-        mTts = Tts.newInstance(requireContext().applicationContext)
+        exampleAdapter = ExamplesAdapter(arrayListOf(), mItemListener = mItemListener)
+        tts = Tts.newInstance(requireContext().applicationContext)
     }
 
     private fun initAd() {
-        mInterstitialAd = InterstitialAd(context)
-        mInterstitialAd.adUnitId = getString(R.string.ADMOB_SEARCH_INTERSTITIAL)
-        mInterstitialAd.loadAd(AdRequest.Builder().build())
-        mInterstitialAd.adListener = mAdListener
+        interstitialAd = InterstitialAd(context)
+        interstitialAd.adUnitId = getString(R.string.ADMOB_SEARCH_INTERSTITIAL)
+        interstitialAd.loadAd(AdRequest.Builder().build())
+        interstitialAd.adListener = adListener
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val root = inflater.inflate(R.layout.fragment_addword, container, false)
         (activity as AddEditWordActivity).setSupportActionBar(toolbar)
+        binding = FragmentAddwordBinding.inflate(inflater, container, false).apply {
+            listener = object : AddEditWordUserActionsListener {
 
-        root.fab_edit_done.setOnClickListener {
-            if (mInterstitialAd.isLoaded) {
-                mInterstitialAd.show()
-            } else {
-                DebugHelper.d(TAG, "The interstitial wasn't loaded yet.")
+                override fun onTtsSpeak() {
+                    tts?.speak(toolbar.title)
+                }
+
+                override fun onEdit() {
+                    setEditMode(true)
+                }
+
+                override fun onDone() {
+                    if (interstitialAd.isLoaded) {
+                        interstitialAd.show()
+                    } else {
+                        DebugHelper.d(TAG, "The interstitial wasn't loaded yet.")
+                    }
+                }
             }
-        }
-
-        val recyclerViewExample = root.recycler_view_example
-        recyclerViewExample.layoutManager = LinearLayoutManager(activity)
-        recyclerViewExample.adapter = mExampleAdapter
-
-        root.image_view_pron_add_edit.setOnClickListener { mTts?.speak(toolbar.title) }
-        root.collapsing_toolbar_layout.setOnClickListener { mTts?.speak(toolbar.title) }
-
-        root.fab_edit.setOnClickListener { setEditMode(true) }
-
 //        root.scroll_view.setOnScrollChangeListener(
 //                NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
 //                    if (scrollY > oldScrollY) {
@@ -85,10 +79,61 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
 //                        root.fab_edit_done.show()
 //                    }
 //                })
-        return root
+        }
+        return binding.root
+
     }
 
-    private val mAdListener = object : AdListener() {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setupViewModel()
+        setupRecyclerView()
+    }
+
+    private fun setupViewModel() {
+        with(binding) {
+            viewModel = (activity as AddEditWordActivity).obtainViewModel().apply {
+                word.observe(viewLifecycleOwner, Observer {
+                    wordId = it.id
+                    setTitle(it.title)
+                    setDefinition(it.definitions)
+                    setExample(it.examples)
+                })
+
+                snackBarStrId.observe(viewLifecycleOwner, Observer {
+                    showMessage(it)
+                })
+
+                showWordsListEvent.observe(viewLifecycleOwner, Observer {
+                    showWordsList()
+                })
+            }
+
+            lifecycleOwner = viewLifecycleOwner
+        }
+    }
+
+    // TODO Duplicate with [WordsFragment]. Try to merge as one method.
+    private fun showMessage(messageId: Int) {
+        if (view != null) {
+            Snackbar.make(view!!, getString(messageId), Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showWordsList() {
+        requireActivity().setResult(Activity.RESULT_OK)
+        requireActivity().finish()
+    }
+
+    private fun setupRecyclerView() {
+        with(binding.recyclerViewExample) {
+            layoutManager = LinearLayoutManager(activity)
+            adapter = exampleAdapter
+        }
+    }
+
+    private val adListener = object : AdListener() {
+
         override fun onAdLoaded() {
             // Code to be executed when an ad finishes loading.
         }
@@ -106,19 +151,14 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
 
         override fun onAdClosed() {
-            val word = Word(mWordId, collapsing_toolbar_layout.title.toString(),
-                    mDefinitions, mExampleAdapter.getData())
-            mPresenter?.saveWord(word)
+            val word = Word(wordId, collapsing_toolbar_layout.title.toString(),
+                    definitions, exampleAdapter.getData())
+            binding.viewModel?.saveWord(word)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        mPresenter?.start()
-    }
-
     override fun onDestroy() {
-        mTts?.release()
+        tts?.release()
         super.onDestroy()
     }
 
@@ -139,39 +179,19 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
     }
 
-    override fun setPresent(present: AddEditWordPresenter) {
-        this.mPresenter = present
-    }
-
-    override fun showEmptyWordError() {
-        Snackbar.make(collapsing_toolbar_layout, getString(R.string.empty_word_message), Snackbar.LENGTH_LONG).show()
-    }
-
-    override fun showWordsList() {
-        requireActivity().setResult(Activity.RESULT_OK)
-        requireActivity().finish()
-    }
-
-    override fun setView(word: Word) {
-        mWordId = word.id
-        setTitle(word.title)
-        setDefinition(word.definitions)
-        setExample(word.examples)
-    }
-
     private fun setTitle(title: String) {
         toolbar.title = title
     }
 
     private fun setDefinition(definitions: MutableList<Definition>) {
-        mDefinitions = definitions
+        this.definitions = definitions
         for (def in definitions)
             linear_layout_def.addView(getDefView(definition = def))
     }
 
-    override fun setEditMode(isEditMode: Boolean) {
+    fun setEditMode(isEditMode: Boolean) {
         setItemTouchHelper(isEditMode)
-        mExampleAdapter.setEditMode(isEditMode)
+        exampleAdapter.setEditMode(isEditMode)
         if (isEditMode) {
             fab_edit.hide()
             fab_edit_done.show()
@@ -179,10 +199,6 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
             fab_edit.show()
             fab_edit_done.hide()
         }
-    }
-
-    override fun isEditMode(): Boolean {
-        return mIsEditMode
     }
 
     private fun setItemTouchHelper(isEditMode: Boolean) {
@@ -208,114 +224,18 @@ class AddEditWordFragment : Fragment(), AddEditWordContract.View {
         }
 
         override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
-            Collections.swap(mExampleAdapter.getData(), fromPosition, toPosition)
-            mExampleAdapter.notifyDataSetChanged()
+            Collections.swap(exampleAdapter.getData(), fromPosition, toPosition)
+            exampleAdapter.notifyDataSetChanged()
             return true
         }
 
         override fun onItemSwipe(position: Int) {
-            mExampleAdapter.getData().removeAt(position)
-            mExampleAdapter.notifyItemRemoved(position)
+            exampleAdapter.getData().removeAt(position)
+            exampleAdapter.notifyItemRemoved(position)
         }
     }
 
     private fun setExample(examples: MutableList<String>) {
-        mExampleAdapter.replaceData(examples)
-    }
-
-    inner class ExamplesAdapter(private var mExamples: MutableList<String>,
-                                private val mItemListener: ItemListener<String>) :
-            RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-        private val HEADER = 1
-        private val LIST = 2
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-            return when (viewType) {
-                HEADER -> getHeaderHolder(parent)
-                else -> getListHolder(parent)
-            }
-        }
-
-        private fun getHeaderHolder(parent: ViewGroup): ViewHolderHeader {
-            val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_examples_header, parent, false)
-            val holder = ViewHolderHeader(itemView, itemView.image_view_add, itemView.edit_text_example)
-            itemView.setOnClickListener {
-                val example = holder.mEditTextExample.text.toString()
-                if (!example.isBlank()) {
-                    mExamples.add(0, example)
-                    holder.mEditTextExample.text.clear()
-                    notifyItemInserted(0)
-                }
-            }
-            return holder
-        }
-
-        private fun getListHolder(parent: ViewGroup?): ViewHolderList {
-            val itemView = LayoutInflater.from(parent?.context).inflate(R.layout.item_examples, parent, false)
-            val holder = ViewHolderList(itemView, itemView.image_view_vert, itemView.text_view_index,
-                    itemView.text_view_example)
-            itemView.setOnClickListener {
-                mItemListener.onItemClick(mExamples[holder.adapterPosition])
-            }
-            return holder
-        }
-
-        override fun getItemViewType(position: Int): Int {
-            return if (mIsEditMode) {
-                when (position) {
-                    0 -> HEADER
-                    else -> LIST
-                }
-            } else LIST
-
-        }
-
-        fun replaceData(examples: MutableList<String>) {
-            setData(examples)
-            notifyDataSetChanged()
-        }
-
-        private fun setData(examples: MutableList<String>) {
-            mExamples = examples
-        }
-
-        override fun getItemCount(): Int {
-            return if (mIsEditMode) mExamples.size + 1 else mExamples.size
-        }
-
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-            if (holder is ViewHolderList) {
-                // Item count will be increased by 1 if in edit mode
-                val adjustPosition = if (mIsEditMode) position - 1 else position
-                val example = mExamples[adjustPosition]
-                holder.mTextViewExample.text = example
-                holder.mImageViewVert.visibility = if (mIsEditMode) View.VISIBLE else View.GONE
-                holder.mTextViewIndex.visibility = if (mIsEditMode) View.GONE else View.VISIBLE
-                holder.mTextViewIndex.text = position.toString()
-            }
-        }
-
-        fun getData(): MutableList<String> {
-            return mExamples
-        }
-
-        fun setEditMode(isEditMode: Boolean) {
-            mIsEditMode = isEditMode
-            notifyDataSetChanged()
-        }
-
-        inner class ViewHolderList(mItemView: View,
-                                   val mImageViewVert: ImageView,
-                                   val mTextViewIndex: TextView,
-                                   val mTextViewExample: TextView) : RecyclerView.ViewHolder(mItemView)
-
-        inner class ViewHolderHeader(mItemView: View,
-                                     val mImageViewAdd: ImageView,
-                                     val mEditTextExample: EditText) : RecyclerView.ViewHolder(mItemView)
-    }
-
-    override fun isActive(): Boolean {
-        return isAdded
+        exampleAdapter.replaceData(examples)
     }
 }

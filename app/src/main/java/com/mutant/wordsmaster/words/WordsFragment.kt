@@ -42,22 +42,23 @@ class WordsFragment : Fragment() {
     }
 
     private fun setupViewModel() {
-        binding.viewModel = obtainViewModel(WordsViewModel::class.java).apply {
+        with(binding) {
+            viewModel = obtainViewModel(WordsViewModel::class.java).apply {
+                openAddEditWordEvent.observe(viewLifecycleOwner, Observer {
+                    val intent = AddEditWordActivity.getIntent(requireContext(), it)
+                    startActivity(intent)
+                })
 
-            openAddEditWordEvent.observe(viewLifecycleOwner, Observer {
-                val intent = AddEditWordActivity.getIntent(requireContext(), it)
-                startActivity(intent)
-            })
+                snackBarStrId.observe(viewLifecycleOwner, Observer {
+                    showMessage(it)
+                })
 
-            snackBarStrId.observe(viewLifecycleOwner, Observer {
-                showMessage(it)
-            })
-
-            ttsWord.observe(viewLifecycleOwner, Observer {
-                tts.speak(it)
-            })
+                ttsWord.observe(viewLifecycleOwner, Observer {
+                    tts.speak(it)
+                })
+            }
+            lifecycleOwner = viewLifecycleOwner
         }
-        binding.lifecycleOwner = viewLifecycleOwner
     }
 
     private fun setupTts() {

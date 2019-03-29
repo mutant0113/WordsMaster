@@ -1,50 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="8dp">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
-        android:id="@+id/frame_layout_head"
-        android:layout_width="wrap_content"
+    <data>
+
+        <variable
+            name="example"
+            type="String" />
+
+        <variable
+            name="insertListener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="editMode"
+            type="Boolean" />
+
+        <variable
+            name="index"
+            type="String" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/image_view_vert"
+        <FrameLayout
+            android:id="@+id/frame_layout_head"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@null"
-            android:src="@drawable/ic_more_vert_black_24px"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:onClick="@{() -> insertListener}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/image_view_vert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_more_vert_black_24px"
+                app:goneUnless="@{editMode}"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/text_view_index"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ic_circle_index"
+                android:gravity="center"
+                android:text="@{index}"
+                app:goneUnless="@{!editMode}"
+                tools:text="0" />
+
+        </FrameLayout>
 
         <TextView
-            android:id="@+id/text_view_index"
-            android:layout_width="wrap_content"
+            android:id="@+id/text_view_example"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/ic_circle_index"
-            android:gravity="center"
-            tools:text="0" />
-
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/text_view_example"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/frame_layout_head"
-        app:layout_constraintStart_toEndOf="@+id/frame_layout_head"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="example" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/frame_layout_head"
+            app:layout_constraintStart_toEndOf="@+id/frame_layout_head"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="example" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

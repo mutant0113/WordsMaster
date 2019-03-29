@@ -1,6 +1,5 @@
 package com.mutant.wordsmaster.data.source.local
 
-import android.content.Context
 import androidx.annotation.VisibleForTesting
 import com.mutant.wordsmaster.data.source.WordsLocalContract
 import com.mutant.wordsmaster.data.source.model.Word
@@ -34,7 +33,7 @@ private constructor(private val mAppExecutors: AppExecutors,
         mAppExecutors.diskIO().execute(runnable)
     }
 
-    override fun getWordByTitle(context: Context, wordTitle: String?, callback: WordsLocalContract.GetWordCallback) {
+    override fun getWordByTitle(wordTitle: String, callback: WordsLocalContract.GetWordCallback) {
         val runnable = Runnable {
             val word = mWordsDao.getWordByTitle(wordTitle)
             mAppExecutors.mainThread().execute {
