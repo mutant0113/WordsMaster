@@ -3,7 +3,6 @@ package com.mutant.wordsmaster.words
 import android.app.Activity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.mutant.wordsmaster.R
 import com.mutant.wordsmaster.SingleLiveEvent
@@ -18,9 +17,9 @@ class WordsViewModel(private val WordsRepository: WordsRepository) : ViewModel()
     val words: LiveData<List<Word>>
         get() = _words
 
-    val empty: LiveData<Boolean> = Transformations.map(words) {
-        it.isEmpty()
-    }
+    private val _empty = MutableLiveData<Boolean>()
+    val empty: LiveData<Boolean>
+        get() = _empty
 
     private val _dataLoading = MutableLiveData<Boolean>()
     val dataLoading: LiveData<Boolean>
@@ -44,6 +43,7 @@ class WordsViewModel(private val WordsRepository: WordsRepository) : ViewModel()
 
     fun replaceData(words: List<Word>) {
         this._words.value = words
+        this._empty.value = words.isEmpty()
     }
 
     /**

@@ -28,12 +28,10 @@ object DataBindingMethods {
     @JvmStatic
     fun softKeyBoard(view: View, active: Boolean) {
         val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
         if (active) {
             view.requestFocus()
             imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
         } else {
-
             imm.hideSoftInputFromWindow(view.windowToken, 0)
         }
     }

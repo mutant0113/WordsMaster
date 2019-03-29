@@ -72,5 +72,4 @@ object ActivityUtils {
             showFragment(fragmentManager, tag)
         }
     }
-
 }
